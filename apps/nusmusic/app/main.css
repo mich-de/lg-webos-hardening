@@ -1,0 +1,130 @@
+/* NusMusic — Chromium 79: niente gap su flex (margin), niente inset (top/left/right/bottom) */
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { width: 100%; height: 100%; overflow: hidden; }
+body {
+  background: linear-gradient(160deg,#0b0f18 0%,#0d1421 55%,#0a1020 100%);
+  color: #e8edf5;
+  font-family: system-ui, 'Segoe UI', Roboto, sans-serif;
+  font-size: 22px;
+}
+#app { display: flex; flex-direction: column; height: 100%; padding: 22px 36px 14px; }
+.dim { color: #59708c; }
+.hidden { display: none !important; }
+
+/* ---------------- Topbar ---------------- */
+#topbar { display: flex; align-items: center; margin-bottom: 12px; flex: none; height: 56px; }
+#mode   { font-size: 38px; font-weight: 800; color: #e8edf5; margin-right: 28px; letter-spacing: .5px; }
+#mode span { color: #2196f3; }
+#nasinfo { font-size: 21px; color: #9db4cc; margin-right: 24px; white-space: nowrap; }
+.hint   { flex: 1; min-width: 0; font-size: 19px; color: #59708c; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.hint.err { color: #ff8a80; }
+#clock  { font-size: 42px; font-weight: 300; letter-spacing: 2px; color: #cfe0f2; margin-left: 20px; font-variant-numeric: tabular-nums; flex: none; }
+
+/* ---------------- Barra (ricerca / azioni) ---------------- */
+#bar { display: flex; align-items: center; margin-bottom: 12px; flex: none; height: 50px; }
+#bar > * + * { margin-left: 8px; }
+#search {
+  width: 520px; flex: none; height: 44px; padding: 0 20px; border-radius: 12px;
+  background: rgba(255,255,255,.06); border: 2px solid rgba(103,209,255,.25);
+  color: #e8edf5; font-size: 21px; font-family: inherit; outline: none;
+}
+#search::placeholder { color: #4d627a; }
+#search.focused { border-color: #67d1ff; box-shadow: 0 0 16px rgba(103,209,255,.5); }
+.bbtn {
+  padding: 7px 18px; border-radius: 12px; font-size: 19px; color: #9db4cc; white-space: nowrap;
+  background: rgba(255,255,255,.05); border: 2px solid transparent; cursor: pointer;
+}
+.bbtn:hover { border-color: #67d1ff; box-shadow: 0 0 16px rgba(103,209,255,.5); }
+.bbtn.focused { border-color: #67d1ff; box-shadow: 0 0 16px rgba(103,209,255,.5); }
+.bbtn.on { color: #fff; background: rgba(33,150,243,.45); }
+.bsep { width: 2px; height: 30px; background: rgba(255,255,255,.12); margin: 0 8px; flex: none; }
+#barbtns { display: flex; align-items: center; }
+#barbtns > * + * { margin-left: 8px; }
+#bartitle { flex: 1; text-align: right; font-size: 20px; color: #7f97b2;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* ---------------- Area principale ---------------- */
+#main { flex: 1; position: relative; overflow: hidden; }
+#tracklist { height: 100%; }
+#tracklist > * + * { margin-top: 10px; }
+
+/* ---------------- Righe playlist ---------------- */
+.thead {
+  height: 44px; line-height: 46px; font-size: 20px; font-weight: 700; color: #67d1ff;
+  padding-left: 10px; margin-top: 18px;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.thead::first-letter { text-transform: uppercase; }
+.thead:first-child { margin-top: 0; }
+.card {
+  display: flex; align-items: center; height: 58px; border-radius: 12px; padding: 0 22px;
+  background: rgba(255,255,255,.07); border: 2px solid transparent; cursor: pointer;
+}
+.card.focused, .card:hover {
+  border-color: #67d1ff; background: rgba(103,209,255,.14);
+  box-shadow: 0 0 16px rgba(103,209,255,.4);
+}
+.tnum { width: 64px; flex: none; text-align: right; font-size: 20px; color: #59708c;
+  font-variant-numeric: tabular-nums; margin-right: 16px; }
+.tname { flex: 1; min-width: 0; font-size: 24px; font-weight: 600;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.text  { width: 130px; flex: none; text-align: right; font-size: 17px; color: #59708c;
+  margin-left: 14px; white-space: nowrap; }
+.nowplaying { color: #67d1ff; font-weight: 800; }
+.card.playing { border-left: 6px solid #2196f3; }
+.pager { text-align: center; font-size: 17px; color: #4d627a; }
+
+/* ---------------- Stato vuoto / errore / caricamento ---------------- */
+#nulldata {
+  position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  background: rgba(255,255,255,.03); border-radius: 20px; text-align: center;
+}
+.nicon { width: 96px; height: 96px; line-height: 92px; border-radius: 50%; font-size: 56px; font-weight: 800;
+  border: 3px solid #3d5470; color: #59708c; margin-bottom: 22px; }
+#nulldata.err .nicon { border-color: #e57373; color: #e57373; }
+#nulldata.load .nicon { border-color: #1e3a5a; border-top-color: #67d1ff; animation: spin 1s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.ntitle { font-size: 32px; font-weight: 600; color: #cfe0f2; }
+.nsub { font-size: 22px; color: #7f97b2; margin-top: 10px; }
+#retry { margin-top: 26px; font-size: 24px; padding: 12px 40px; color: #fff; background: #1565c0; cursor: pointer; }
+#retry:hover, #retry.focused { box-shadow: 0 0 16px rgba(103,209,255,.5); }
+
+/* ---------------- Player ---------------- */
+#player {
+  position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 60;
+  background: rgba(5,9,16,.96);
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+}
+#ptitle { font-size: 52px; font-weight: 800; color: #fff; max-width: 80%;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap; text-align: center; }
+#pdir { font-size: 24px; color: #59708c; margin-top: 12px; max-width: 80%;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+#pinfo { font-size: 22px; color: #9db4cc; margin-top: 10px; font-variant-numeric: tabular-nums; }
+#pinfo .stamp { color: #67d1ff; font-weight: 700; }
+#pinfo .dim { margin: 0 10px; }
+#audio { width: 62%; margin-top: 40px; }
+#phud { display: flex; margin-top: 34px; }
+#phud > * + * { margin-left: 14px; }
+.hbtn {
+  padding: 12px 26px; border-radius: 14px; font-size: 23px; color: #cfe0f2; white-space: nowrap;
+  background: rgba(255,255,255,.07); border: 2px solid transparent; cursor: pointer;
+}
+.hbtn:hover, .hbtn.focused { border-color: #67d1ff; box-shadow: 0 0 16px rgba(103,209,255,.5); color: #fff; }
+.hbtn.on { color: #fff; background: rgba(33,150,243,.45); }
+#playhint { font-size: 18px; color: #4d627a; margin-top: 26px; text-align: center; }
+#pclose {
+  position: absolute; top: 34px; right: 44px; font-size: 22px; color: #67d1ff;
+  padding: 8px 18px; border-radius: 12px; border: 2px solid rgba(103,209,255,.4); cursor: pointer;
+}
+#pclose:hover { background: rgba(103,209,255,.2); }
+
+/* ---------------- Toast ---------------- */
+#toast { position: fixed; top: 20px; left: 300px; right: 300px; z-index: 80; padding: 16px 28px;
+  border-radius: 16px; background: #1a2a42; border: 2px solid #67d1ff; color: #fff;
+  font-size: 24px; text-align: center; box-shadow: 0 0 30px rgba(0,0,0,.6);
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+#toast.err { border-color: #ff8a80; }
+
+/* ---------------- Footer ---------------- */
+#hint { padding-top: 8px; text-align: center; font-size: 17px; color: #4d627a; flex: none; }

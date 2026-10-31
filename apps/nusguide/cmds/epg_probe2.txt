@@ -1,0 +1,14 @@
+echo === role file epg enyoapp ===
+cat /usr/share/luna-service2/roles.d/com.webos.exampleapp.enyoapp.epg.app.json
+echo === role file qmlapp ===
+cat /usr/share/luna-service2/roles.d/com.webos.exampleapp.qmlapp.epg.app.json
+echo === search kind com.palm.epg.programs:1 ===
+luna-send -f -n 1 luna://com.webos.epgdb/search '{"query":{"from":"com.palm.epg.programs:1","limit":1}}' 2>&1 | head -c 600
+echo
+echo === search kind com.palm.epg.channels:1 ===
+luna-send -f -n 1 luna://com.webos.epgdb/search '{"query":{"from":"com.palm.epg.channels:1","limit":1}}' 2>&1 | head -c 600
+echo
+echo === search kind com.webos.epg.programs:1 ===
+luna-send -f -n 1 luna://com.webos.epgdb/search '{"query":{"from":"com.webos.epg.programs:1","limit":1}}' 2>&1 | head -c 600
+echo
+echo FINE

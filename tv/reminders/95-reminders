@@ -1,0 +1,5 @@
+#!/bin/sh
+# Hook boot Homebrew Channel (/var/lib/webosbrew/init.d): avvia il demone promemoria condiviso
+S=/media/developer/reminders/remind.sh
+[ -f "$S" ] && sh "$S" start
+exit 0

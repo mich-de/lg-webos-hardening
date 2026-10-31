@@ -1,0 +1,11 @@
+echo === api.d iepg ===
+ls /usr/share/luna-service2/api.d/ 2>/dev/null | grep -i epg
+cat /usr/share/luna-service2/api.d/com.webos.service.iepg 2>/dev/null | head -30
+echo === roles iepg ===
+ls /usr/share/luna-service2/roles.d/ | grep -i epg
+cat /usr/share/luna-service2/roles.d/com.webos.service.iepg.role.json 2>/dev/null
+echo === apps whitelisting iepg (permissions.d) ===
+grep -rl 'com.webos.service.iepg' /usr/share/luna-service2/permissions.d/ 2>/dev/null | head
+echo === who reads epgdb: all roles with epgdb ===
+grep -rl 'com.webos.epgdb' /usr/share/luna-service2/roles.d/ 2>/dev/null
+echo FINE

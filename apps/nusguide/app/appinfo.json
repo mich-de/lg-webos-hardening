@@ -1,0 +1,10 @@
+{
+  "id": "org.nusguide.app",
+  "version": "0.4.3",
+  "vendor": "NusGuide",
+  "type": "web",
+  "main": "index.html",
+  "title": "Guida TV",
+  "icon": "icon.png",
+  "uiRevision": "2"
+}

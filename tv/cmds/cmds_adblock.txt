@@ -1,0 +1,8 @@
+mkdir -p /media/developer/adblock && wget -q -T 60 -O /media/developer/adblock/hosts.block http://192.168.188.81:8081/tv/adblock/hosts.block
+wget -q -O /media/developer/adblock/98adblock http://192.168.188.81:8081/tv/adblock/98adblock && chmod +x /media/developer/adblock/98adblock
+ln -sf /media/developer/adblock/98adblock /var/lib/webosbrew/init.d/98adblock
+sh /media/developer/adblock/98adblock
+wc -l /etc/hosts; grep -c hbv-adblock /etc/hosts
+ping -c1 -W1 doubleclick.net 2>&1 | head -1
+wget -q -O /dev/null https://guidatv.rai.it/palinsesto/app/rai-1/01-11-2026.json && echo RAI_OK
+echo FINE

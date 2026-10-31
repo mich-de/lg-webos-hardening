@@ -1,0 +1,11 @@
+{
+  "id": "org.nusmusic.app",
+  "version": "0.1.1",
+  "vendor": "NusMusic",
+  "type": "web",
+  "main": "index.html",
+  "title": "NusMusic",
+  "icon": "icon.png",
+  "largeIcon": "largeIcon.png",
+  "uiRevision": "2"
+}

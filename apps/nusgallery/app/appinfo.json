@@ -1,0 +1,11 @@
+{
+  "id": "org.nusgallery.app",
+  "version": "0.1.3",
+  "vendor": "NusGallery",
+  "type": "web",
+  "main": "index.html",
+  "title": "NusGallery",
+  "icon": "images/icon.png",
+  "largeIcon": "images/largeIcon.png",
+  "uiRevision": "2"
+}

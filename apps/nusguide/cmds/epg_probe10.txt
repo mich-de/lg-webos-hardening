@@ -1,0 +1,7 @@
+echo === all ls2 refs to iepg ===
+grep -rl 'com.webos.service.iepg' /usr/share/luna-service2/ 2>/dev/null
+echo === ls2 top dirs ===
+ls /usr/share/luna-service2/
+echo === mss or services manifests for iepg ===
+find / -maxdepth 4 -name '*iepg*' 2>/dev/null | grep -v proc | head
+echo FINE

@@ -1,0 +1,9 @@
+echo === ps full ===
+ps w | head -80
+echo === strings in epg leveldb log: kind-like tokens ===
+grep -ao 'com\.[a-z]*\.epg[a-zA-Z0-9/_.:]*' /var/db/epg/000003.log 2>/dev/null | sort | uniq -c | sort -rn | head -20
+echo === generic kind decl in log ===
+grep -ao '"kind":"[^"]*"' /var/db/epg/000003.log 2>/dev/null | sort -u | head -20
+echo === who is mojodb ===
+ps | grep -i -E 'db8|mojo' | grep -v grep
+echo FINE

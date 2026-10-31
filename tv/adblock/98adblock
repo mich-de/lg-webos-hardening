@@ -1,0 +1,6 @@
+#!/bin/sh
+# hbv-adblock: blocklist ads+malware (StevenBlack) in /etc/hosts (tmpfs rigenerato a ogni boot)
+# shortcut: lista statica, aggiornare a mano rigenerando /media/developer/adblock/hosts.block dal PC
+B=/media/developer/adblock/hosts.block
+[ -f "$B" ] && ! grep -q '# hbv-adblock' /etc/hosts 2>/dev/null && cat "$B" >> /etc/hosts
+exit 0

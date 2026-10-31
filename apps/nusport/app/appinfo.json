@@ -1,0 +1,10 @@
+{
+  "id": "org.nusport.app",
+  "version": "0.3.5",
+  "vendor": "NuSport",
+  "type": "web",
+  "main": "index.html",
+  "title": "NuSport",
+  "icon": "icon.png",
+  "uiRevision": "2"
+}

@@ -1,0 +1,3 @@
+cp /media/developer/volosd/93-volosd /var/lib/webosbrew/init.d/93-volosd
+chmod 755 /var/lib/webosbrew/init.d/93-volosd
+ls -la /var/lib/webosbrew/init.d/

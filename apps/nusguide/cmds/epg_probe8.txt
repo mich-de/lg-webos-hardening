@@ -1,0 +1,14 @@
+echo === A legacybroadcast unknown method probe ===
+luna-send -f -n 1 luna://com.webos.service.legacybroadcast/__probe '{}' 2>&1 | head -c 300
+echo
+echo === B legacybroadcast getChannelList ===
+luna-send -f -n 1 luna://com.webos.service.legacybroadcast/getChannelList '{}' 2>&1 | head -c 500
+echo
+echo === C legacybroadcast getChannelProgramList ===
+luna-send -f -n 1 luna://com.webos.service.legacybroadcast/getChannelProgramList '{}' 2>&1 | head -c 500
+echo
+echo === D legacybroadcast luna URIs in binary ===
+grep -ao 'luna://com\.webos\.service\.legacybroadcast[a-zA-Z/]*' /usr/sbin/legacy-broadcast 2>/dev/null | sort -u | head -20
+echo === E who calls com.webos.service.legacybroadcast (ls2 registries) ===
+grep -rl 'com.webos.service.legacybroadcast' /usr/share/luna-service2/permissions.db/ /usr/share/luna-service2/roles.d/ /usr/palm/services/ 2>/dev/null | head -10
+echo FINE

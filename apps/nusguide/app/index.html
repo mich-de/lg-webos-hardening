@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="it"><head>
+<meta charset="utf-8">
+<title>Guida TV</title>
+<link rel="stylesheet" href="main.css">
+</head>
+<body>
+<div id="bg"></div>
+<div id="app">
+  <header id="topbar">
+    <div id="brand">
+      <svg viewBox="0 0 48 48" width="52" height="52"><defs><linearGradient id="bgr" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#4da3ff"/><stop offset="1" stop-color="#7a5cff"/></linearGradient></defs><rect x="3" y="9" width="42" height="29" rx="7" fill="url(#bgr)"/><path d="M20 17v13l11-6.5z" fill="#fff"/><rect x="15" y="41" width="18" height="3" rx="1.5" fill="#4da3ff"/></svg>
+      <div><div id="mode">Guida TV</div><div id="sourcehint" class="hint"></div></div>
+    </div>
+    <div id="btnnow" class="btn">● Adesso</div>
+    <div id="btnset" class="btn" title="Impostazioni"><svg viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="#eef2f8" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><circle cx="12" cy="12" r="6.5"/><path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3M5.3 5.3l2.1 2.1M16.6 16.6l2.1 2.1M5.3 18.7l2.1-2.1M16.6 7.4l2.1-2.1"/></svg></div>
+    <div id="clockbox"><div id="clock">--:--</div><div id="date"></div></div>
+  </header>
+  <section id="hero">
+    <div id="himg"></div>
+    <div id="hinfo">
+      <div id="hchips"></div>
+      <div id="htitle"></div>
+      <div id="hmeta"></div>
+      <div id="hprog" class="bar"><i></i></div>
+      <div id="hdesc"></div>
+    </div>
+  </section>
+  <section id="nowwrap">
+    <div class="label">In onda ora</div>
+    <div id="nowstrip"></div>
+  </section>
+  <section id="grid">
+    <div id="timehead"></div>
+    <div id="gridbody"></div>
+  </section>
+  <footer id="hint">↑↓ canale · ←→ programma · OK dettagli · Back torna ad adesso / esce · rotella cambia canale · ↑ dal primo canale: impostazioni</footer>
+</div>
+<div id="detail" class="hidden">
+  <div id="dimg"></div>
+  <div id="dinfo">
+    <div id="dchips"></div>
+    <div id="dtitle"></div>
+    <div id="dtime"></div>
+    <div id="dprog" class="bar"><i></i></div>
+    <div id="ddesc"></div>
+    <div id="dbtns"><div id="dwatch" class="btn hidden"><svg viewBox="0 0 24 24" width="22" height="22"><path d="M7 4.5v15l12.5-7.5z" fill="#fff"/></svg>Guarda ora</div><div id="dremind" class="btn hidden">Ricordamelo</div><div id="dclose" class="btn">Chiudi</div></div>
+  </div>
+</div>
+<div id="toast" class="hidden"></div>
+<div id="settings" class="hidden">
+  <div class="stitle">Impostazioni · Edizione TGR (Rai 3 regionale)</div>
+  <div id="reglist"></div>
+  <div id="setclose" class="btn">Chiudi</div>
+</div>
+<script src="parsers.js"></script>
+<script src="reminders-client.js"></script>
+<script src="main.js"></script>
+</body></html>

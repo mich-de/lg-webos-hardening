@@ -1,0 +1,6 @@
+wget -q -T 20 -O /media/developer/reminders/95-reminders http://192.168.188.81:8081/tv/reminders/95-reminders && chmod +x /media/developer/reminders/95-reminders
+ln -sf /media/developer/reminders/95-reminders /var/lib/webosbrew/init.d/95-reminders
+printf '#!/bin/sh\npgrep -f nusguide-epg/epg_offline.sh >/dev/null || nohup sh /media/developer/nusguide-epg/epg_offline.sh >/tmp/nusepg_loop.log 2>&1 &\n' > /media/developer/nusguide-epg/94-nusguide-epg && chmod +x /media/developer/nusguide-epg/94-nusguide-epg
+ln -sf /media/developer/nusguide-epg/94-nusguide-epg /var/lib/webosbrew/init.d/94-nusguide-epg
+ls -l /var/lib/webosbrew/init.d/
+echo FINE

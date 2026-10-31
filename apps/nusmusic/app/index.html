@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="it"><head>
+<meta charset="utf-8">
+<title>NusMusic</title>
+<link rel="stylesheet" href="main.css">
+</head><body>
+<div id="app">
+  <header id="topbar">
+    <div id="mode">Nu<span>Music</span></div>
+    <div id="nasinfo">NAS Brume · 192.168.188.56:8080</div>
+    <div id="scanhint" class="hint"></div>
+    <div id="clock">--:--:--</div>
+  </header>
+  <div id="bar">
+    <input id="search" type="text" placeholder="Cerca nel titolo…" autocomplete="off" spellcheck="false">
+    <span class="bsep"></span>
+    <div id="barbtns"></div>
+    <div id="bartitle"></div>
+  </div>
+  <div id="main">
+    <div id="tracklist"></div>
+    <div id="nulldata" class="hidden"></div>
+  </div>
+  <div id="player" class="hidden">
+    <div id="pclose">&#10005; Chiudi (Back)</div>
+    <div id="ptitle"></div>
+    <div id="pdir"></div>
+    <div id="pinfo"></div>
+    <audio id="audio" controls autoplay preload="none"></audio>
+    <div id="phud">
+      <div class="hbtn" data-id="prev" data-hud="0">&#9198; Prec</div>
+      <div class="hbtn" data-id="back10" data-hud="1">&#8722;10s</div>
+      <div class="hbtn" data-id="playpause" data-hud="2">&#9654; Play</div>
+      <div class="hbtn" data-id="fwd10" data-hud="3">+10s</div>
+      <div class="hbtn" data-id="next" data-hud="4">Succ &#9197;</div>
+    </div>
+    <div id="playhint">&#8592;&#8594; avanza/arretra di 10 secondi &#183; &#8593;&#8595; volume &#183; OK play/pausa &#183; rotella volume &#183; Back chiude e salva la posizione</div>
+  </div>
+  <div id="toast" class="hidden"></div>
+  <footer id="hint"><div>Puntatore/click seleziona &#183; rotella scorre la lista &#183; &#8593;&#8595; naviga &#183; OK riproduce &#183; ricerca libera nel titolo &#183; Back indietro</div></footer>
+</div>
+<script src="main.js"></script>
+</body></html>

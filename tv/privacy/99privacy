@@ -1,0 +1,38 @@
+#!/bin/bash
+# hbv-privacy hook v2 — telemetria LG: burst-kill persistenti + hosts blocklist
+(
+  # systemd runtime mask: /etc è read-only su questo TV → mask in /run a ogni boot
+  mkdir -p /run/systemd/system
+  for m in uploadd.service update.service; do
+    ln -sf /dev/null /run/systemd/system/$m 2>/dev/null
+    systemctl stop $m 2>/dev/null
+  done
+  systemctl daemon-reload 2>/dev/null
+  for u in uploadd remotelogger voiceinput; do
+    for i in $(seq 1 8); do
+      pkill -9 -x ${u} 2>/dev/null
+      sleep 1
+    done
+  done
+  for p in admanager nudge user-context-manager iot-client mqtt-client; do
+    pkill -9 -x ${p} 2>/dev/null
+  done
+) >/dev/null 2>&1 &
+if ! grep -q '# hbv-privacy' /etc/hosts 2>/dev/null; then
+  cat >> /etc/hosts <<'EOHF'
+# hbv-privacy — LG ads/tracking/voice/ThinQ blocklist
+127.0.0.1 nsu.lge.com snu.lge.com su.lge.com su-ssl.lge.com su-dev.lge.com
+127.0.0.1 info.lgsmartad.com smartad.lgtvsdp.com pcg.lgtvsdp.com
+127.0.0.1 media.lgtvsdp.com wag.lgtvsdp.com getadhoc.lgtvsdp.com
+127.0.0.1 ngui.lgtvcommon.com suggest.lgtvcommon.com wau.lgtvcommon.com
+127.0.0.1 api.lgtviot.com push.lgtviot.com sports.lgtviot.com
+127.0.0.1 common.lgthinq.com lss.lgthinq.com kr.lgeapi.com
+::1 nsu.lge.com snu.lge.com su.lge.com su-ssl.lge.com su-dev.lge.com
+::1 info.lgsmartad.com smartad.lgtvsdp.com pcg.lgtvsdp.com
+::1 media.lgtvsdp.com wag.lgtvsdp.com getadhoc.lgtvsdp.com
+::1 ngui.lgtvcommon.com suggest.lgtvcommon.com wau.lgtvcommon.com
+::1 api.lgtviot.com push.lgtviot.com sports.lgtviot.com
+::1 common.lgthinq.com lss.lgthinq.com kr.lgeapi.com
+EOHF
+fi
+exit 0

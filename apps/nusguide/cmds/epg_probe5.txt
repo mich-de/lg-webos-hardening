@@ -1,0 +1,15 @@
+echo === iepg luna URIs ===
+grep -ao 'luna://[a-z0-9./]*' /usr/sbin/iepg 2>/dev/null | sort -u | head -40
+echo === iepg: getChannelList endpoints ===
+grep -ao 'luna://com\.webos\.service\.[a-zA-Z]*\[[a-zA-Z/]*\]\?[a-zA-Z/]*' /usr/sbin/iepg 2>/dev/null | sort -u | head
+echo === legacy-broadcast luna URIs tv ===
+grep -ao 'luna://com\.webos\.service\.[a-zA-Z]*' /usr/sbin/legacy-broadcast 2>/dev/null | sort -u | head -20
+echo === fepg luna URIs ===
+grep -ao 'luna://[a-z0-9./]*' /usr/sbin/fepg 2>/dev/null | sort -u | head -40
+echo === try iepg getChannelList ===
+luna-send -f -n 1 luna://com.webos.service.iepg/getChannelList '{"subscribe":false}' 2>&1 | head -c 700
+echo
+echo === try tv.channel getChannelList ===
+luna-send -f -n 1 luna://com.webos.service.tv.channel/getChannelList '{"subscribe":false}' 2>&1 | head -c 700
+echo
+echo FINE

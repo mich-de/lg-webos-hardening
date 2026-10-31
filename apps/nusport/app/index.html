@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="it"><head>
+<meta charset="utf-8">
+<title>NuSport</title>
+<link rel="stylesheet" href="main.css">
+</head>
+<body>
+<div id="app">
+  <header id="topbar">
+    <div id="mode">Nu<span>Sport</span></div>
+    <div id="today"></div>
+    <div id="sourcehint" class="hint"></div>
+    <div id="clock">--:--:--</div>
+    <div id="topbtns"></div>
+  </header>
+  <div id="tabs"></div>
+  <div id="bar"></div>
+  <div id="main">
+    <div id="eventlist"></div>
+    <div id="standings" class="hidden"></div>
+    <div id="nulldata" class="hidden"></div>
+  </div>
+  <div id="detail" class="hidden">
+    <div id="dbody"></div>
+    <div id="dclose">&#x2715; Chiudi</div>
+  </div>
+  <div id="banner" class="hidden"></div>
+  <footer id="hint"><div>Puntatore/click seleziona · rotella scorre · ←→ giorno (in lista) · ↑↓ naviga · OK dettagli · ↑ in cima: promemoria/impostazioni · Back indietro</div></footer>
+</div>
+<script src="reminders-client.js"></script>
+<script src="main.js"></script>
+</body></html>

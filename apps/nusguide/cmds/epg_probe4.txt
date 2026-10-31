@@ -1,0 +1,13 @@
+echo === binaries exist? ===
+ls -la /usr/sbin/ | grep -ai epg
+ls /usr/sbin/fepg /usr/sbin/iepg /usr/sbin/legacy-broadcast /usr/sbin/hybridtv-manager 2>&1
+echo === fepg: program/channel strings ===
+grep -ao '[a-zA-Z0-9_.:/-]*[Pp]rogram[a-zA-Z0-9_.:/]*' /usr/sbin/fepg 2>/dev/null | sort -u | head -40
+echo === fepg: channel strings ===
+grep -ao '[a-zA-Z0-9_.:/-]*[Cc]hannel[a-zA-Z0-9_.:/]*' /usr/sbin/fepg 2>/dev/null | sort -u | head -40
+echo === iepg program strings ===
+grep -ao '[a-zA-Z0-9_.:/-]*[Pp]rogram[a-zA-Z0-9_.:/]*' /usr/sbin/iepg 2>/dev/null | sort -u | head -30
+echo === legacy-broadcast program/channel ===
+grep -ao '[a-zA-Z0-9_.:/-]*[Pp]rogram[a-zA-Z0-9_.:/]*' /usr/sbin/legacy-broadcast 2>/dev/null | sort -u | head -30
+grep -ao '[a-zA-Z0-9_.:/-]*[Cc]hannel[a-zA-Z0-9_.:/]*' /usr/sbin/legacy-broadcast 2>/dev/null | sort -u | head -30
+echo FINE

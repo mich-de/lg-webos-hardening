@@ -1,0 +1,16 @@
+echo === A iepg getEventList ===
+luna-send -f -n 1 luna://com.webos.service.iepg/getEventList '{}' 2>&1 | head -c 400
+echo
+echo === B iepg getChannelList with anon ===
+luna-send -f -n 1 luna://com.webos.service.iepg/getChannelList '{"channelGroup":"all","srcType":"dvbt"}' 2>&1 | head -c 400
+echo
+echo === C fepg getChannelList ===
+luna-send -f -n 1 luna://com.webos.service.fepg/getChannelList '{}' 2>&1 | head -c 400
+echo
+echo === D fepg getProgramList ===
+luna-send -f -n 1 luna://com.webos.service.fepg/getProgramList '{}' 2>&1 | head -c 400
+echo
+echo === E iepg providers ===
+luna-send -f -n 1 luna://com.webos.service.iepg/getProviders '{}' 2>&1 | head -c 300
+echo
+echo FINE

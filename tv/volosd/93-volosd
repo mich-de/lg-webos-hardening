@@ -1,0 +1,3 @@
+#!/bin/sh
+# webosbrew init.d hook: runs before/at boot; bind only, compositor loads QML later (no restart needed)
+/media/developer/volosd/volosd.sh on norestart

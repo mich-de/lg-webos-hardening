@@ -1,0 +1,3 @@
+echo === iepg all endpoint-like strings ===
+grep -ao '/[a-zA-Z][a-zA-Z]*' /usr/sbin/iepg 2>/dev/null | sort | uniq -c | sort -rn | head -50
+echo FINE

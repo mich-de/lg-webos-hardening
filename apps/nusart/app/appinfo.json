@@ -1,0 +1,11 @@
+{
+  "id": "org.nusart.app",
+  "version": "0.1.2",
+  "vendor": "NusArt",
+  "type": "web",
+  "main": "index.html",
+  "title": "NusArt",
+  "icon": "icon.png",
+  "largeIcon": "largeIcon.png",
+  "uiRevision": "2"
+}
