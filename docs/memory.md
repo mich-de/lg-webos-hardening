@@ -67,6 +67,11 @@ Fatti stabili + decisioni. Dettagli riproducibili in `documentazione.md`.
 - **Mediaset GraphQL `frontier.api-graph.mediaset.it`** (GetEpgPageV2, APQ): subgraph page-composition SEMPRE `SUBGRAPH_RESPONSE_BODY_EMPTY` → inutilizzabile. Non ritentare.
 - Rifiutate/cadute: epgshare03 (NXDOMAIN), theplatform mediaset-epg (feed off), raiplay.it/guidatv/mappaCanali.json (404), guidatv.sky.it feed.xml (HTML SPA), DPDmancic repo (404), la7.it (404), cmem.ai (vietato).
 
+## Pubblicazione GitHub
+- Repo **privato** `github.com/mich-de/lg-webos-hardening`, working copy `D:\tv\_publish\lg-webos-hardening` (master, 2 commit al 01/11/2026).
+- Aggiornamento: copiare nella root del publish → docs (`documentazione.md`, `handover.md`, `memory.md`, `hardware.md`, `handover_checkpoint.md`, `epg_sources_dtt.md`), `hearth-it\ICONS.md`, `apps\<app>\` (sorgenti `app/` + script, NO test/shots/ipk/png), poi `git add -A && git commit && git push`. `.gitignore` esclude già `*.png *.ipk node_modules dist`.
+- Include anche NusStream (client StreamingCommunity) — deciso esplicitamente dall'utente (01/11/2026), repo resta privato.
+
 ## Skills/config locali
 - Skills caveman + ponytail in `D:\CentroAI\data\opencode\config\opencode\skills\` (config root attivo; `~/.config/opencode` NON visto). headroom via pip (`headroom` CLI ok).
 - cmem.ai NON usare (deciso utente). Subagent spesso quota-exhausted → lavoro inline.
