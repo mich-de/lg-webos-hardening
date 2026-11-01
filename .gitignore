@@ -2,10 +2,12 @@ node_modules/
 dist/
 build/
 dist-legacy/
-*.ipk
 *.log
 *.zip
-*.png
+# screenshot/non-sorgente (icone e loghi restano tracciati)
+shot*.png
+_old_icons/
+test/shots/
 .DS_Store
 .env
 .env.local
