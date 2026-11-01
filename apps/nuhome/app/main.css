@@ -1,0 +1,179 @@
+/* ============================================================
+ * NuHome - main.css
+ * webOS TV 5.x (LG 49NANO866NA, 1920x1080)
+ * Dark glassmorphism, nessuna risorsa esterna (system-ui font).
+ * ============================================================ */
+
+:root {
+  --accent: #2196f3;          /* azzurro LG */
+  --accent2: #7e57c2;         /* viola secondario */
+  --radius: 24px;             /* raggio tile */
+  --text: #eef2f7;
+  --muted: #9aa7b8;
+  --glass: rgba(20, 26, 40, 0.55);
+  --glass-border: rgba(255, 255, 255, 0.08);
+  --anim: 180ms cubic-bezier(.2,.7,.2,1); /* curva fluida ~180ms */
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html, body {
+  width: 100%; height: 100%;
+  overflow: hidden;
+  background: #0b0e17;
+  color: var(--text);
+  font-family: system-ui, "Segoe UI", Roboto, sans-serif;
+  /* niente selezione di testo col telecomando */
+  user-select: none;
+  -webkit-user-select: none;
+  cursor: default;
+}
+
+/* ---------- Sfondo: gradiente scuro leggero + vignetta ---------- */
+#bgfx {
+  position: fixed; inset: 0; z-index: 0; pointer-events: none;
+  background:
+    radial-gradient(1200px 700px at 18% -10%, rgba(33,150,243,.14), transparent 60%),
+    radial-gradient(1000px 600px at 88% 110%, rgba(126,87,194,.13), transparent 60%),
+    linear-gradient(180deg, #0e1220 0%, #0b0e17 55%, #090b12 100%);
+}
+#bgfx::after { /* vignetta */
+  content: ""; position: absolute; inset: 0;
+  background: radial-gradient(ellipse at center, transparent 55%, rgba(0,0,0,.55) 100%);
+}
+
+/* ---------- Barra superiore ---------- */
+#topbar {
+  position: relative; z-index: 2;
+  height: 150px;
+  display: flex; align-items: center;
+  gap: 40px;
+  padding: 26px 64px 10px;
+}
+
+.bar-item {
+  background: var(--glass);
+  border: 1px solid var(--glass-border);
+  border-radius: 18px;
+  color: var(--text);
+  display: flex; align-items: center; gap: 14px;
+  padding: 10px 18px;
+  transition: transform var(--anim), box-shadow var(--anim), background var(--anim);
+}
+.bar-item .logo-name { font-size: 30px; font-weight: 700; letter-spacing: .5px; }
+
+/* Stato focus condiviso (tile + barra) */
+.focused {
+  transform: scale(1.075);
+  box-shadow: 0 0 0 3px var(--accent), 0 0 26px rgba(33,150,243,.45), 0 10px 30px rgba(0,0,0,.5);
+  z-index: 5;
+  outline: none;
+}
+
+/* Api restano silenziose quando vedono ambienti mai un mouse */
+.cursored-fake { display: none; }
+
+/* Orologio */
+#clock { margin-left: auto; text-align: right; }
+#clk-time {
+  font-size: 68px; font-weight: 300; line-height: 1;
+  font-variant-numeric: tabular-nums; letter-spacing: 2px;
+  text-shadow: 0 2px 12px rgba(0,0,0,.6);
+}
+#clk-date { font-size: 22px; color: var(--muted); margin-top: 4px; }
+
+/* Smart bar (app bloccate) */
+#smartbar { display: flex; gap: 16px; margin-left: 8px; }
+#smartbar .bar-item { padding: 9px 16px; font-size: 22px; gap: 10px; }
+#smartbar .bar-icon {
+  width: 34px; height: 34px; border-radius: 9px;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 700; font-size: 18px; color: #fff; flex: 0 0 auto;
+}
+
+/* ---------- Griglia app ---------- */
+#grid {
+  position: relative; z-index: 1;
+  display: grid;
+  grid-template-columns: repeat(6, 1fr); /* 4-6 colonne: 6 su 1080p */
+  gap: 28px;
+  padding: 22px 64px 40px;
+  align-content: start;
+}
+
+.tile {
+  background: var(--glass);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius);
+  height: 230px;
+  padding: 22px 20px;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 14px;
+  text-align: center;
+  will-change: transform;
+  transition: transform var(--anim), box-shadow var(--anim), border-color var(--anim);
+}
+.tile:hover { border-color: rgba(255,255,255,.18); }
+
+/* Icona app: immagine dal sistema, o fallback lettera colorata */
+.tile-icon {
+  width: 96px; height: 96px; border-radius: 22px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 44px; font-weight: 700; color: #fff;
+  background: linear-gradient(135deg, #455a64, #263238);
+  overflow: hidden; flex: 0 0 auto;
+  box-shadow: 0 6px 16px rgba(0,0,0,.35) inset;
+}
+.tile-icon img { width: 100%; height: 100%; object-fit: cover; border-radius: 22px; }
+
+.tile-name {
+  font-size: 25px; line-height: 1.2;
+  max-width: 100%;
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.tile-appid { font-size: 15px; color: var(--muted); letter-spacing: .3px; }
+
+/* ---------- Stato / toast ---------- */
+#status {
+  position: fixed; left: 64px; bottom: 30px; z-index: 3;
+  color: var(--muted); font-size: 22px;
+}
+#toast {
+  position: fixed; left: 50%; bottom: 44px; transform: translate(-50%, 20px);
+  z-index: 40; opacity: 0; pointer-events: none;
+  background: rgba(28,34,52,.92); border: 1px solid var(--glass-border);
+  border-radius: 14px; padding: 14px 26px; font-size: 24px;
+  transition: opacity var(--anim), transform var(--anim);
+}
+#toast.show { opacity: 1; transform: translate(-50%, 0); }
+
+/* ---------- Context menu ---------- */
+#ctx {
+  position: fixed; inset: 0; z-index: 30;
+  background: rgba(5,7,12,.6); /* scurisce il resto */
+  display: flex; align-items: center; justify-content: center;
+}
+#ctx-card {
+  width: 640px; padding: 36px 40px 20px;
+  background: rgba(18,24,38,.96);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius);
+  box-shadow: 0 24px 60px rgba(0,0,0,.6), 0 0 0 1px rgba(33,150,243,.15);
+}
+#ctx-title { font-size: 32px; font-weight: 700; }
+#ctx-sub { font-size: 18px; color: var(--muted); margin: 8px 0 22px; word-break: break-all; }
+
+.ctx-actions { display: flex; flex-direction: column; gap: 10px; }
+.ctx-actions button {
+  text-align: left; font-size: 25px; color: var(--text);
+  background: transparent; border: 1px solid transparent;
+  border-radius: 14px; padding: 14px 18px;
+  transition: background var(--anim), box-shadow var(--anim);
+}
+.ctx-actions button.focused {
+  background: rgba(33,150,243,.16);
+  transform: none;
+  box-shadow: 0 0 0 2px var(--accent);
+}
+.ctx-hint { margin-top: 20px; font-size: 16px; color: var(--muted); text-align: center; }

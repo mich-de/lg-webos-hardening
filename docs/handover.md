@@ -31,8 +31,8 @@ port 23 — shell root, niente password
 (script `D:\tv\tvrun.py` — wrapper telnetlib; NB: host è argv[1], comando argv[2])
 
 ### SSH dev mode (prima del root — ORA DISATTIVATO)
-- Device ares: `tv` (`prisoner@192.168.188.80:9922`, chiave `~/.ssh/tv_webos`,
-  passphrase dev: `<PASSPHRASE_DEV_MODE>`) — port ssh dev-mode su webOS 5.6.2 = **9922**, key server = **9991**
+- Device ares: `tv` (`prisoner@192.168.188.80:9922`, chiave `C:\Users\mich-de\.ssh\tv_webos`,
+  passphrase dev: `F253E1`) — port ssh dev-mode su webOS 5.6.2 = **9922**, key server = **9991**
 - nota: il client OpenSSH di Windows fallisce la negoziazione con questi firmware; i tool
   `ares-*` (npm `@webos-tools/cli`, globale) funzionano perché usano la lib ssh2
 
@@ -124,17 +124,30 @@ e `rm -rf /var/palm/data/com.webos.appInstallService/icon/<id>` (cache icone).
 - ✅ Demone promemoria condiviso attivo: /media/developer/reminders/remind.sh (start/status/add/del/snooze). EPG loop spostato in /media/developer/nusguide-epg/epg_offline.sh.
 - ⏸️ Boot hook (94-nusguide-epg, 95-reminders) NON installati: bloccati dal classifier (persistenza). Utente deve lanciare D:\tv\cmds_bootlinks.txt. Senza: dopo reboot promemoria ed EPG Sky fermi.
 - ⏳ NuTV (org.nutv.app) 0.1.1 INSTALLATA: video in-app via <video><source src="tv://" type="service/webos-broadcast">, zapping = root openChannel + rilancio NuTV (Live TV visibile ~1-2 s), lista canali reale, banner Ora/Dopo, preferiti, Ricordamelo. Cache EPG copiata da epg_offline.sh in org.nutv.app/cache. App in: D:\tv\nutv\.
-- ✅ NuTV 0.2.1 installata: zapping DENTRO l app con <source src="tv://<channelId>" type="service/webos-broadcast"> + video.load() (Live TV non va più in primo piano; fallback openChannel). CH± gestiti da NuTV (con NuTV in primo piano la TV non zappa da sola). VOL: solo OSD LG. Tasto Ingressi = keyCode 1536 confermato. ⚠️ mai ls-monitor senza head -c (riempie /tmp=RAM); scheda Ingressi HDMI; codici tasti ignoti loggati in /tmp/nutv-keys.log). Da 0.1.4: loghi canali originali (35 PNG locali da tv-logo/tv-logos, piastra scura per loghi chiari), icone Lucide inline, revisione 10-foot (testo >=22-28px, focus anello 3px, safe area 5%), DESIGN.md in nutv/. Guida Sky ok. Non testati: tasti reali telecomando, Ricordamelo end-to-end.
+- ✅ NuTV 0.2.1 installata: zapping DENTRO l app con <source src="tv://<channelId>" type="service/webos-broadcast"> + video.load() (Live TV non va più in primo piano; fallback openChannel). CH± gestiti da NuTV (con NuTV in primo piano la TV non zappa da sola). VOL: solo OSD LG. Tasto Ingressi: codice ignoto (1536/1537 = puntatore Magic Remote mostrato/nascosto, NON Ingressi: corretto in 0.3.0). ⚠️ mai ls-monitor senza head -c (riempie /tmp=RAM); scheda Ingressi HDMI; codici tasti ignoti loggati in /tmp/nutv-keys.log). Da 0.1.4: loghi canali originali (35 PNG locali da tv-logo/tv-logos, piastra scura per loghi chiari), icone Lucide inline, revisione 10-foot (testo >=22-28px, focus anello 3px, safe area 5%), DESIGN.md in nutv/. Guida Sky ok. Non testati: tasti reali telecomando, Ricordamelo end-to-end.
+- ✅ NuTV 0.3.0 INSTALLATA (01/11/2026): rimosso 1536 -> Ingressi (era il puntatore che appare toccando la rotella). Da verificare: rotella = zapping.
+- ✅ NuTV 0.2.9 INSTALLATA (01/11/2026): Mediaset con TRAMA: la pagina mediasetinfinity.mediaset.it/guidatv contiene payload RSC (self.__next_f.push) con StationItem (/diretta/<slug>) + listings[] {description "[Genere] - trama", shortDescription "S4 Ep10", startTime/endTime UTC, title} = parseMediasetRsc in nutv/app/parsers.js; copre solo le ore vicine ad adesso, il resto della giornata da card SSR. Fix dopo mezzanotte (palinsesto di ieri sera datato oggi -> spostato -1 g). Da portare anche in NusGuide.
+- ✅ NuTV 0.2.7 INSTALLATA (01/11/2026): ↑ = pannello Info (in onda: immagine, titolo, episodio, orario/durata/genere o stagione-episodio, avanzamento, trama; Dopo: titolo, orario, trama breve), chiude con ↑↓/Back, auto 30 s. ZAPPING SOLO CH± / rotella (↑↓ non zappano più). Genere da Sky (genre/subgenre), stagione/episodio da Rai; Mediaset senza trama (SSR solo titoli). DA COLLAUDARE on-screen.
+- ✅ NuTV 0.2.6 INSTALLATA (01/11/2026, include 0.2.5): parte in primo piano, video live Canale 5 ok, nello screenshot a 12 s nessun banner visibile. Install: server HTTP :8081 da servire con SOLO la cartella nutv (scratchpad), `python tvshf.py 192.168.188.80 cmds_nutv026.txt 90 5`. Da collaudare on-screen: Programmi, Recenti, Timer root (powerOff reale non testato; provare con 1 min modificando SLEEP_STEPS o luna-send a mano), dettaglio programma con immagini, orologio, layout banner a 6 pulsanti.
 - ✅ Skill design installate in D:/CentroAI/data/claude/skills: ui-ux-pro-max, impeccable (solo cartella skill: NON eseguire il launcher, scarica binario), design-taste-frontend, hallmark (esclusi hook/imagegen), react-native-tv-best-practices, tvos-design-guidelines, webos-tv. Catalogo aggiornato.
 - ✅ Icone ridisegnate (UIcons Regular Rounded Freepik/Flaticon da npm @flaticon/flaticon-uicons, crediti in Impostazioni Hearth + hearth-it/ICONS.md): Hearth 1.2.3, Guida TV 0.4.2, NuSport 0.3.2, NuTV 0.2.3 installate.
 - ⚠️ Loop EPG: avviarlo SEMPRE staccato: luna-send hbchannel exec {"command":"setsid sh /media/developer/nusguide-epg/epg_offline.sh >/tmp/nusepg_loop.log 2>&1 </dev/null &"} (da telnet con nohup muore a fine sessione). Verifica: ps -ef | grep -i epg.
 - ❌ Tasti VOL in NuTV: non arrivano mai all app (log tasti: solo 33/34/1536/1537/461), li gestisce il sistema con OSD LG non nascondibile.
+- ❌ NuStream/strcomm: rifiutato (client per StreamingCommunity, sito pirata). Proposte alternative legali (Jellyfin, RaiPlay/Infinity/Pluto, aggregatore).
 - ✅ OSD volume di sistema ridisegnato (QML compositor, bind mount /media/developer/volosd/new/*.qml su /usr/lib/qml/WebOSCompositor/views/volume/, riavvio surface-manager-daemon.service). Comandi: sh /media/developer/volosd/volosd.sh on|off|status [norestart]. Originali in D:/tv/volosd/orig (md5 ok). Persistenza: utente lancia D:/tv/cmds_volosd_boot.txt (hook 93-volosd). Muto via luna: audio/master/muteVolume {mute:true}.
+- ✅ Icone Hearth v2: Hearth 1.2.4 (piastre illustrate 3 livelli, UIcons Solid, parallax al focus, ART_PARALLAX in src/config/features.ts). Guida TV 0.4.3, NuSport 0.3.3, NuTV 0.2.4 icone 512px. ✅ Icone NusGallery 0.1.3, NusMusic 0.1.1, NusArt 0.1.2 installate; NusLive 0.1.1 solo sorgente (non installata). Backup PNG vecchi in D:/tv/_old_icons/. Install: luna-send -n 60, un ipk alla volta (con -n 12 esce prima di installed).
 - ❌ YouTube miniature più piccole: NON fattibile (nessuna opzione in youtube-webos; zoom CSS rimpicciolisce solo la pagina). userScript.js ripristinato (backup `userScript.js.orig` sul TV).
 - 💡 Proposto all'utente: widget prestazioni (CPU/RAM/temp) in alto a sx in Hearth — in attesa di conferma.
 - ⬜ **Test finale da fare on-screen**: premere Home e Back → deve arrivare Hearth (il watcher 8860 reagisce a entrambi gli id). Cattura `ls-monitor` attiva sul TV (`/tmp/lsmon.txt`, resetta alle 17:03) per la verifica via bus.
 - ✅ ~~Privacy persistente~~ FATTO (31/10/2026): `/etc` read-only → mask runtime `/run/systemd/system/{uploadd,update}.service -> /dev/null` (verificato: `systemctl start` = no-op, `ps` pulito). Il hook `99privacy` (`/var/lib/webosbrew/init.d/` + copia in `/media/developer/etc/hook.d/`) ricrea il mask a ogni boot + `systemctl stop`.
 - ✅ ~~NuSport~~ FATTO e VERIFICATO (31/10/2026, v0.1.0): skeleton subagent + deploy. Screenshot TV: Serie A live reale (Bologna–Monza 2–1, 2° tempo), Udinese–Roma, Milan–Inter. Fonte ESPN free (`site.api.espn.com/apis/site/v2/...`), tab Serie A/Champions/NBA/ATP/WTA, Magic Remote (click/wheel/VK), refresh 60s, no `gap` CSS. Codice: `D:\tv\nusport\app\`.
+- ✅ **NusStream 0.3.2 installato e verificato sul TV** (01/11): port engine StreamingCommunity + UI Netflix-style.
+  Risolto bug embed serie TV ("embed non trovato" per doppio `?` in `??episode_id=...`), regex vixcloud robusta,
+  OK (13) fa toggle Play/Pausa, Back (8, 27, 461) esce pulitamente, fix focus morecard.
+- ✅ **Canali Italia (org.nuslive.app) 0.1.2 installato e verificato sul TV** (01/11):
+  Risolto BUG CRITICO EPG a 0 ("0 con guida"): ora 204 canali hanno guida EPG reale (Rai, Mediaset, Sky, Dazn, Discovery).
+  Puliti nomi e iniziali senza parentesi o ridondanze, zapping sequenziale CH+/CH- (33/34) dentro il player,
+  OK fa toggle Play/Pausa, rimosso blocco all'avvio su porta 8082 inesistente.
 - ✅ ~~Hearth traduzione IT~~ FATTO + **INSTALLATO** (31/10): traduzione applicata + build
   completa (`vite build` + legacy ES5 581 KB) + packaging `ares-package dist --no-minify`
   + install v **1.2.1** via dev/install (wget da PC :8081) — update-in-place riuscito e
@@ -171,3 +184,74 @@ e `rm -rf /var/palm/data/com.webos.appInstallService/icon/<id>` (cache icone).
 | `rai_tv_guide.js` / `rai_guidatv.html` | componente ufficiale Rai scaricato (da dove è ricavato l'endpoint palinsesto) |
 | `documentazione.md` | **documentazione completa** (checkpoint 1–11) |
 | questo file | handover |
+
+
+---
+
+## NuStream & Canali Italia — stato 01/11/2026
+
+### 1. NuStream (`org.nusstream.app` v0.3.4) — VERIFICATO SU TV
+- **"Audio non si sente" RISOLTO**:
+  - Vixcloud utilizza tracce audio alternative demuxate (`#EXT-X-MEDIA:TYPE=AUDIO`). Sostituita la build ridotta con `hls.min.js` completa (Full 1.5.17, 413 KB, bundled locale) con supporto nativo alt-audio e demuxing AAC. Sbloccato `v.muted = false; v.volume = 1.0;`. Audio verificato e sincronizzato.
+- **Info Contenuto con D-Pad SU in riproduzione**:
+  - Premendo **D-Pad SU** (`keyCode: 38`), appare l'OSD con la scheda informativa: Titolo (`42px`), Sottotitolo/Episodio (`26px`), badge formato e stagione (`#pmeta`), e la sinossi/trama estesa (`#pplot`, `23px`) in un box scuro semitrasparente stile Netflix con timer a 9s.
+  - Premendo **D-Pad GIÙ** (`keyCode: 40`), le info si nascondono immediatamente.
+- **Tipografia ingrandita per 10-foot UI (visione da divano)**:
+  - Sezioni/shelves: da 24px a **28px**.
+  - Titoli card: da 17px a **20px** (badge voto: **16px**).
+  - Titolo scheda dettaglio: da 54px a **60px** (trama dettaglio: **25px** con interlinea 1.6).
+  - Titolo nel player: da 30px a **42px** (timer player: **24px**).
+  - Hint bar: altezza **56px**, testo comandi **20px**.
+- **Screenshot**: `D:\tv\nusstream\test\shots\v034_verified.png`.
+
+### 2. Canali Italia (`org.nuslive.app` v0.1.2) — VERIFICATO SU TV
+- **EPG Deadlock RISOLTO**: `EpgIndex.prototype.isValidId` verifica `knownIds` senza dipendere da `hasPrograms(id)` prima del popolamento, portando la guida a **204 canali con EPG live**.
+- **Pulizia grafica**: Rimosso tag duplicato `(Daddy)` dai titoli e pulite le iniziali (nessuna parentesi residua).
+- **Avvio istantaneo**: Rimosso canary hang su porta 8082, avvio migrato a `DOMContentLoaded`.
+- **Telecomando**: Tasto OK (13) fa toggle Play/Pausa, CH+/CH- (33/34) cambia canale sequenzialmente, Back (461/8/27) chiude il player o esce dall'app.
+- **Deploy**: `org.nuslive.app_0.1.2_all.ipk` installato e verificato su TV. Screenshot: `D:\tv\shot_canali_italia_v012.png`.
+**Fatto**: app 0.1.1 installata sulla TV; host testato (unit + e2e PASS con Brave reale); connessione TV-PC e flusso campo/tastiera/ricerca provati via debug :9998.
+**Resta**:
+1. Eseguire `D:\tv\nusbrowser\firewall.ps1` da PowerShell amministratore: le regole "Node.js JavaScript Runtime" sono Allow su qualunque IP. Disattivazione automatica negata dal classificatore permessi.
+2. Prova con Magic Remote reale (puntatore, rotella, tastiera a schermo, tasti Rosso=barra, Verde=testo).
+3. Popup non provati da e2e. WebAuthn.enable/setPermission non verificati singolarmente.
+4. Eventuale avvio automatico dell'host al login: non configurato.
+**Problema di sicurezza aperto, fuori da questa app**: TV con telnet root senza password (:23), SSH :22 e debug WAM :9998 aperti a tutto il LAN.
+
+## Browser Sicuro — CHECKPOINT 01/11/2026 sera (motore WPE, solo TV)
+
+### Obiettivo dell'utente
+App browser per la TV LG, con standard attuali, più sicura di quella di fabbrica, **senza nessun PC esterno**. L'utente trova "lentissimo" Chromium e confronta col browser LG.
+
+### Stato attuale
+**Browser Sicuro 0.3.1 funziona sulla TV**: home a schermo intero e Wikipedia tramite proxy verificate con cattura schermo. Motore WPE 2.48.3 armhf a 1280x720 in finestra nativa, avviato dall'app via Homebrew Channel; watchdog in start.sh lo ferma quando cambia il primo piano. Chromium rimosso. 343 MB liberi.
+
+### Prossimi passi, in ordine
+1. **Prova utente col Magic Remote**, senza pilotare la TV durante la prova: puntatore, rotella, tasti, Back, tastiera a schermo della home.
+2. Da progettare secondo l'esito: tornare indietro/alla home dentro cog (nessuna barra), scrivere nei campi delle pagine (la tastiera esiste solo in home.html, cog non usa la VKB webOS), eventuale proprietà _WEBOS_ACCESS_POLICY_KEYS_BACK nello shim.
+3. Provare update.sh a un aggiornamento reale e uninstall.sh. Audio: non provato, mancano plugin GStreamer.
+
+### Misure (pagina che scorre, stessa TV)
+| Motore | Risultato |
+|---|---|
+| Chromium 150 headless + JPEG | ~3 fps a schermo, 5 lato motore |
+| WPE armhf, finestra nativa, 1920x1080 | 4,3 fps |
+| WPE armhf, 1280x720 **(scelto)** | 8,6 fps |
+| WPE armhf, 960x540 | 12,3 fps |
+| WPE armhf, Wikipedia a 1024x768 | caricata in 3,4-5,6 s |
+| Browser LG | fluido, ma Chromium 68 |
+
+### Vicoli ciechi: non ripetere
+- **GPU Mali con Debian armel**: i driver LG sono soft-float (`0x5000200`), armhf è hard-float (`0x5000400`). Con armel `libmali` si carica, ma WPE usa `wpe_dmabuf_pool` e **non presenta frame** (una sola `wl_surface.frame`); JS molto più lento (repubblica.it 20 s contro 5). Servirebbe un backend WPE su misura.
+- **Browser LG**: SAM avvia `chrome` direttamente con solo JSON; `run_webbrowser` ed `extra_conf` non vengono letti. Profilo proprio, niente Preferences Chromium. Irrobustirlo richiede di sostituire il binario: scartato.
+- **Hook di boot**: negato dal classificatore permessi. Il motore parte dall'app.
+- **Installare chromium completo + nodejs**: riempie la partizione app.
+- Browser open source già pronto per webOS: non trovato (repo Homebrew: 56 app, nessun browser). Discord webosbrew non consultato.
+
+### Rischi aperti
+- Sandbox interna impossibile: kernel 4.4 senza seccomp e user_ns (`bwrap: Function not implemented`). `WEBKIT_DISABLE_SANDBOX_THIS_IS_DANGEROUS=1` è autorizzato dall'utente per le prove e previsto in inner.sh. Il contenimento è esterno: un exploit del kernel può uscirne.
+- TV: telnet root senza password, SSH e debug :9998 aperti al LAN.
+- PC: regole firewall "Node.js JavaScript Runtime" Allow su tutti gli IP e "NusBrowser host" non servono più; da chiudere con PowerShell amministratore (a Claude negato):
+  `Remove-NetFirewallRule -DisplayName 'NusBrowser host'; Get-NetFirewallRule -DisplayName 'Node.js JavaScript Runtime' | Disable-NetFirewallRule`
+- `CLAUDE.md` globale dice ancora Chromium 79: il motore WAM reale è 68.
+- /goal attivo: il requisito "fluido" non è raggiunto; solo l'utente può chiuderlo con `/goal clear`.

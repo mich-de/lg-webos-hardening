@@ -795,3 +795,17 @@ Deploy history NusGuide: 0.2.2 (fix boot+cache), 0.2.3 (CSS gap → margin), 0.2
 
 <!-- CHECKPOINT: ROADMAP Hearth-IT + NuSport -->
 
+
+
+---
+
+# CHECKPOINT — BROWSER SICURO, SOLO TV (01/11/2026)
+Motore TV verificato: `curl http://192.168.188.80:9998/json/version` = Chrome/68.0.3440.106, condiviso da browser LG, WAM e app_shell.
+
+```text
+nusbrowser/app/  client WAM   nusbrowser/tv/  file in /media/developer/nusb
+bootstrap.sh  prima installazione (chiede >=650 MB liberi)
+start.sh -> host.js -> proxy.js (uid 99) + ns.py -> inner.sh -> forward.js + chromium (uid 65534)
+```
+Build: `node build.js`, `npx ares-package app --outdir .`; installazione come da memory.md, servendo solo l'ipk (contiene il token).
+Comandi TV: puntatore = mouse, rotella = scorri, CH+/- = pagina, Back = indietro/home/esci, Rosso = barra indirizzi, Verde = testo nella pagina.

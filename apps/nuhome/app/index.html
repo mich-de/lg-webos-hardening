@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<!-- webOS TV 5.x - webapp 1920x1080, nessuna risorsa esterna -->
+<meta name="viewport" content="width=1920, initial-scale=1">
+<title>NuHome</title>
+<link rel="stylesheet" href="main.css">
+</head>
+<body>
+
+  <!-- Sfondo decorativo (gradiente + vignetta, puro CSS) -->
+  <div id="bgfx" aria-hidden="true"></div>
+
+  <!-- ============ BARRA SUPERIORE ============ -->
+  <header id="topbar">
+    <!-- Logo NuHome: OK qui = refresh elenco app -->
+    <button class="bar-item" id="logo" aria-label="NuHome - aggiorna elenco app">
+      <svg viewBox="0 0 24 24" width="46" height="46" aria-hidden="true">
+        <defs>
+          <linearGradient id="lg" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0" stop-color="#42a5f5"/><stop offset="1" stop-color="#7e57c2"/>
+          </linearGradient>
+        </defs>
+        <rect x="1" y="1" width="22" height="22" rx="6" fill="url(#lg)"/>
+        <path d="M7 17V7l10 10V7" fill="none" stroke="#0b0e17" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <span class="logo-name">NuHome</span>
+    </button>
+
+    <!-- Orologio: ora grande, data sotto -->
+    <div id="clock">
+      <div id="clk-time">--:--</div>
+      <div id="clk-date">—</div>
+    </div>
+
+    <!-- Smart bar: app bloccate (pin) -->
+    <nav id="smartbar" aria-label="App bloccate"></nav>
+  </header>
+
+  <!-- ============ GRIGLIA APP ============ -->
+  <main id="grid" aria-label="Applicazioni"></main>
+
+  <!-- Stato (caricamento / errore luna) -->
+  <div id="status" hidden></div>
+
+  <!-- Notifica toast -->
+  <div id="toast" role="status"></div>
+
+  <!-- ============ CONTEXT MENU (OK tenuto 2s su un tile) ============ -->
+  <div id="ctx" hidden>
+    <div id="ctx-card">
+      <div id="ctx-title">—</div>
+      <div id="ctx-sub">—</div>
+      <div class="ctx-actions" id="ctx-actions"></div>
+      <div class="ctx-hint">Su/Giù per scegliere · OK conferma · Back/Indietro esci</div>
+    </div>
+  </div>
+
+  <script src="main.js"></script>
+</body>
+</html>

@@ -38,6 +38,7 @@ tvOS HIG FOCUS-04) e adaptive icon / banner Android TV (foreground + background 
 | nusgallery | NusGallery | `#14A3FF` azzurro | `images` | sole e colline |
 | nusmusic | NusMusic | `#F0146E` lampone | `headphones` | solchi di vinile |
 | nusart | NusArt | `#FFC400` giallo (glifo scuro) | `brush` | macchie di colore |
+| nuslive | NusLive | `#E5141B` rosso diretta | `live` | onde di segnale |
 | photo | Foto e video / Media Player | `#FF3D6E` rosa | `photo-video` | sole e colline |
 | music | Musica | `#B81EE0` magenta | `music-alt` | solchi di vinile |
 | homedash | Home Dashboard | `#12B5CB` ciano | `smart-home` | griglia di punti (dispositivi) |
@@ -76,4 +77,6 @@ Geometria dei motivi delle nostre app (100×100, condivisa tra Hearth e `make_ic
   `src/components/Tile.tsx`, `src/lib/sourceicons.ts` (path Solid, `SYSTEM_APP_ICON` incl. nostre app),
   `src/components/Glyph.tsx`, `src/theme/global.css` (`.art*`, parallax), `src/config/features.ts`
   (`ART_PARALLAX`), `src/screens/Settings.tsx` (crediti).
+- PNG nostre app: `D:\tv\hearth-it\make_icons.py` (Pillow, TTF Solid, supersampling 4×): Guida TV/NuSport/NuTV
+  512×512; NusGallery, NusMusic, NusArt (icon + largeIcon) e NusLive alle dimensioni originali. NusStream escluso.
 - v1 (UIcons Regular su gradienti) archiviata: `uicons/paths.json`, `uicons/uicons-regular-rounded.ttf`.

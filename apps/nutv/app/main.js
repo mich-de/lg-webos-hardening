@@ -75,6 +75,12 @@ var EPG = {
 	'56': ['#4F8A2B', 'aurora', 'hgtvit'], '58': ['#0270AA', 'rai', 'rai-sport'], '59': ['#A31A1A', 'aurora', 'motortrend']
 };
 var RAI_PALINSESTO = 'https://guidatv.rai.it/palinsesto/app/';
+var RAI_IMG = 'https://www.raiplay.it/resizegd/';   // come NusGuide: immagini Rai ridimensionate
+function imgUrl(p, w) {
+	if (!p || !p.img) return '';
+	if (/^https?:/.test(p.img)) return p.sized ? p.img + '&w=' + w + '&h=' + Math.round(w * 9 / 16) : p.img;   // Sky: resize lato server
+	return RAI_IMG + w + 'x-' + p.img;
+}
 var MEDIASET_GUIDA = 'https://mediasetinfinity.mediaset.it/guidatv';
 var AURORA_PAGE = 'https://public.aurora.enhanced.live/site/page/';
 
@@ -116,7 +122,9 @@ function loadRai(id) {
 	})).then(function (parts) {
 		return [].concat.apply([], parts).map(function (e) {
 			var st = hmsToMs(e.hour, e.date);
-			return st == null ? null : { title: String(e.name || ''), start: st, end: st + durToMs(e.duration, e.duration_in_minutes) };
+			return st == null ? null : { title: String(e.name || ''), start: st, end: st + durToMs(e.duration, e.duration_in_minutes),
+				desc: String(e.description || ''), ep: String(e.episode_title || ''), img: e.image ? String(e.image) : '',
+				gen: (e.season ? 'Stagione ' + e.season : '') + (e.season && e.episode ? ' · ' : '') + (e.episode ? 'Episodio ' + e.episode : '') };
 		}).filter(Boolean).sort(function (a, b) { return a.start - b.start; });
 	});
 }
@@ -145,7 +153,7 @@ function loadAurora(id, page) {
 	if (c && c.p && Date.now() - c.t < 3600000) return Promise.resolve(c.p);
 	return httpGet(AURORA_PAGE + (page || 'guida-tv') + '/?include=default&filter%5Benvironment%5D=' + id + '&v=2', 20000).then(function (t) {
 		var cut = Date.now() - 6 * 3600000;
-		var p = parseAurora(t).filter(function (x) { return x.end > cut; }).map(function (x) { return { title: x.title, start: x.start, end: x.end }; });
+		var p = parseAurora(t).filter(function (x) { return x.end > cut; }).map(function (x) { return { title: x.title, start: x.start, end: x.end, desc: String(x.desc || '').slice(0, 400), img: x.img || '' }; });
 		lsSet(key, { t: Date.now(), p: p });
 		return p;
 	}, function (e) { if (c && c.p) return c.p; throw e; });
@@ -174,6 +182,7 @@ function nowNext(c) {
 /* ---------------- Canali TV ---------------- */
 var all = [], byNum = {}, cur = null, prev = null;
 var favs = lsGet('nutv.favs') || {};
+var recent = lsGet('nutv.recent') || [];   // channelId, più recente prima
 
 function colorOf(c) {
 	if (EPG[c.n]) return EPG[c.n][0];
@@ -285,6 +294,8 @@ function tune(c) {
 function arrived(c) {
 	if (!cur || cur.id !== c.id) { if (cur) prev = cur; cur = c; }
 	lsSet('nutv.last', { cur: cur && cur.id, prev: prev && prev.id });
+	recent = [c.id].concat(recent.filter(function (id) { return id !== c.id; })).slice(0, 12);
+	lsSet('nutv.recent', recent);
 	zapping = null; busy(null);
 	if (pending && pending.id !== cur.id) { var p = pending; pending = null; tune(p); return; }
 	pending = null;
@@ -332,6 +343,9 @@ function hideBanner() { $('banner').classList.add('hidden'); setBFocus(-1); }
 function bannerOpen() { return !$('banner').classList.contains('hidden'); }
 function renderBanner() {
 	var c = cur, nn = nowNext(c), now = Date.now();
+	if (sleepAt && sleepAt <= now) sleepAt = 0;
+	$('banner').style.borderLeftColor = colorOf(c);
+	$('bclock').textContent = hhmm(now) + (sleepAt ? '  ·  spegnimento ' + hhmm(sleepAt) : '');
 	$('blogo').outerHTML = logoHtml(c).replace('class="logo', 'id="blogo" class="logo');
 	$('bname').innerHTML = esc(c.n + '  ' + c.nm) + (favs[c.id] ? '<span class="star">' + ICON_STAR + '</span>' : '');
 	var noEpg = !EPG[c.n] ? 'Guida non disponibile per questo canale' : (c.ld && c.progs ? 'Nessuna informazione' : 'Carico la guida…');
@@ -343,6 +357,9 @@ function renderBanner() {
 	$('bnexth').textContent = nn.next ? hhmm(nn.next.start) : '';
 	$('btnfav').classList.toggle('on', !!favs[c.id]);
 	$('btnrem').classList.toggle('hidden', !(nn.next && window.Reminders));
+	$('btnsched').classList.toggle('hidden', !EPG[c.n]);
+	$('btnsleep').classList.toggle('on', !!sleepAt);
+	$('btnsleep').lastChild.textContent = sleepAt ? Math.max(1, Math.round((sleepAt - now) / 60000)) + ' min' : 'Timer';
 }
 function bButtons() {
 	return [].filter.call($('bbtns').children, function (b) { return !b.classList.contains('hidden'); });
@@ -358,6 +375,8 @@ function act(a) {
 	else if (a === 'remind') remindNext();
 	else if (a === 'last') goPrev();
 	else if (a === 'list') { hideBanner(); openPanel(); }
+	else if (a === 'sched') { hideBanner(); openSched(); }
+	else if (a === 'sleep') cycleSleep();
 	else if (a === 'exit') { try { window.close(); } catch (e) {} }
 }
 function toggleFav(c) {
@@ -368,8 +387,8 @@ function toggleFav(c) {
 	if (panelOpen) renderList();
 	toast(favs[c.id] ? c.nm + ' aggiunto ai preferiti' : c.nm + ' tolto dai preferiti', 2500);
 }
-function remindNext() {
-	var c = cur, p = c && nowNext(c).next;
+function remindNext() { if (cur) remind(cur, nowNext(cur).next); }
+function remind(c, p) {
 	if (!p || !window.Reminders) return;
 	Reminders.add(p.start / 1000, 'nt' + c.n.replace(/\D/g, '') + '_' + Math.floor(p.start / 1000), APP_ID,
 		c.nm + ': ' + p.title, 'lcn:' + c.n).then(function () {
@@ -377,10 +396,151 @@ function remindNext() {
 	}, function (e) { toast('Promemoria non impostato: ' + String(e && e.message || e).slice(0, 70), 6000); });
 }
 
+/* ---------------- Timer di spegnimento ---------------- */
+// Timer root staccato (setsid, come il loop EPG): sopravvive alla chiusura di NuTV. Se exec non risponde: timer interno all'app.
+var SLEEP_STEPS = [0, 30, 60, 90, 120], sleepT = null, sleepWarnT = null;
+var POWER_OFF = "luna-send -n 1 luna://com.webos.service.tvpower/power/powerOff '{\"reason\":\"remoteKey\"}'";
+var sleepSt = lsGet('nutv.sleep') || {};
+if (!(sleepSt.at > Date.now())) sleepSt = {};   // scaduto (o TV riavviata): il pid salvato non è più nostro
+var sleepAt = sleepSt.at || 0;
+function cycleSleep() {
+	var left = sleepAt ? Math.round((sleepAt - Date.now()) / 60000) : 0, i;
+	for (i = 0; i < SLEEP_STEPS.length - 1 && SLEEP_STEPS[i] <= left; i++);
+	if (left >= SLEEP_STEPS[SLEEP_STEPS.length - 1]) i = 0;
+	setSleep(SLEEP_STEPS[i]);
+}
+function setSleep(min) {
+	var old = sleepSt.pid;
+	clearTimeout(sleepT); clearTimeout(sleepWarnT);
+	sleepAt = min ? Date.now() + min * 60000 : 0;
+	sleepSt = { at: sleepAt };
+	lsSet('nutv.sleep', sleepSt);
+	// kill solo se il pid è ancora il nostro sh (cmdline contiene powerOff)
+	var kill = /^\d+$/.test(String(old || '')) ? 'grep -q powerOff /proc/' + old + '/cmdline 2>/dev/null && kill ' + old + '; ' : '';
+	var cmd = kill + (min ? "setsid sh -c 'sleep " + min * 60 + '; ' + POWER_OFF.replace(/'/g, "'\\''") + "' >/dev/null 2>&1 </dev/null & echo PID$!" : 'echo PID');
+	hbExec(cmd, 8000).then(function (out) {
+		var m = /PID(\d+)/.exec(out);
+		if (m && sleepAt) { sleepSt.pid = m[1]; lsSet('nutv.sleep', sleepSt); }
+	}, function () {
+		if (sleepAt) sleepT = setTimeout(powerOff, min * 60000);   // niente root: vale solo con NuTV aperta
+	});
+	if (min) toast('Spegnimento alle ' + hhmm(sleepAt), 3000);
+	else toast('Timer di spegnimento disattivato', 2500);
+	armSleepWarn();
+	if (bannerOpen()) renderBanner();
+}
+function armSleepWarn() {
+	clearTimeout(sleepWarnT);
+	var w = sleepAt - 60000 - Date.now();
+	if (sleepAt && w > 0) sleepWarnT = setTimeout(function () { showBanner(true); toast('La TV si spegne tra 1 minuto · Timer nel banner per annullare', 15000); }, w);
+}
+function powerOff() {
+	sleepAt = 0; sleepSt = {}; lsSet('nutv.sleep', sleepSt);
+	lunaCall('luna://com.webos.service.tvpower/power/powerOff', { reason: 'remoteKey' }, 5000).catch(function (e) {
+		toast('Spegnimento fallito: ' + String(e && e.message || e).slice(0, 60), 8000);
+	});
+}
+
+/* ---------------- Programmi del canale (oggi) ---------------- */
+var schedOpen = false, sList = [], sFocus = 0, sTop = 0, S_VIS = 7, sCh = null;
+function openSched() {
+	sCh = cur; if (!sCh) return;
+	schedOpen = true;
+	$('sched').classList.remove('hidden');
+	$('stitle').textContent = sCh.n + '  ' + sCh.nm;
+	sList = []; renderSched();
+	loadEpg(sCh).then(function () {
+		var now = Date.now(), i;
+		sList = (sCh.progs || []).filter(function (p) { return p.end > now - 3 * 3600000 && p.start < now + 24 * 3600000; });
+		for (i = 0; i < sList.length && sList[i].end <= now; i++);
+		sFocus = Math.min(i, Math.max(0, sList.length - 1)); sTop = Math.max(0, sFocus - 2);
+		if (schedOpen) renderSched();
+	});
+}
+function closeSched() { schedOpen = false; $('sched').classList.add('hidden'); }
+function moveSched(d) {
+	if (!sList.length) return;
+	sFocus = Math.max(0, Math.min(sList.length - 1, sFocus + d));
+	if (sFocus < sTop) sTop = sFocus;
+	if (sFocus >= sTop + S_VIS) sTop = sFocus - S_VIS + 1;
+	renderSched();
+}
+function schedOk(i) {
+	var p = sList[i], now = Date.now();
+	if (!p) return;
+	if (p.start <= now && now < p.end) { closeSched(); tune(sCh); }
+	else if (p.start > now) remind(sCh, p);
+	else toast('Programma già trasmesso');
+}
+function renderSched() {
+	var now = Date.now(), html = '';
+	if (!sList.length) html = '<div class="empty">' + (sCh && sCh.ld && sCh.progs ? 'Nessun programma in guida.' : 'Carico il palinsesto…') + '</div>';
+	for (var i = sTop; i < Math.min(sList.length, sTop + S_VIS); i++) {
+		var p = sList[i], live = p.start <= now && now < p.end, past = p.end <= now;
+		var day = new Date(p.start).getDate() !== new Date(now).getDate() ? 'dom. ' : '';
+		html += '<div class="row srow' + (i === sFocus ? ' focused' : '') + (live ? ' cur' : '') + (past ? ' past' : '') + '" data-s="' + i + '" style="top:' + ((i - sTop) * ROW_H) + 'px">'
+			+ '<div class="sh">' + day + hhmm(p.start) + '</div><div class="t"><div class="nm">' + esc(p.title) + '</div><div class="pg">'
+			+ (live ? 'In onda · fino alle ' + hhmm(p.end) : past ? 'Terminato' : hhmm(p.start) + ' – ' + hhmm(p.end)) + '</div></div>'
+			+ (live ? '<div class="live">LIVE</div>' : '')
+			+ (live ? '<i class="rp"><i style="width:' + Math.round((now - p.start) / (p.end - p.start) * 100) + '%"></i></i>' : '') + '</div>';
+	}
+	$('slist').innerHTML = html;
+	renderDetail(sList[sFocus], now);
+}
+function renderDetail(p, now) {
+	$('sdet').classList.toggle('hidden', !p);
+	if (!p) return;
+	var u = imgUrl(p, 384), dur = Math.round((p.end - p.start) / 60000);
+	$('sdimg').classList.toggle('hidden', !u);
+	if (u && $('sdimg').getAttribute('src') !== u) $('sdimg').src = u;
+	$('sdt').textContent = p.title;
+	$('sdh').textContent = hhmm(p.start) + ' – ' + hhmm(p.end) + ' · ' + dur + ' min'
+		+ (p.start > now ? ' · OK per Ricordamelo' : p.end > now ? ' · mancano ' + Math.round((p.end - now) / 60000) + ' min' : '');
+	$('sdd').textContent = (p.ep ? p.ep + ' — ' : '') + (p.desc || 'Nessuna descrizione disponibile.');
+}
+
+/* ---------------- Info programma (↑): ora in onda completo + successivo ---------------- */
+var infoT = null;
+function infoOpen() { return !$('info').classList.contains('hidden'); }
+function showInfo() {
+	if (!cur) return;
+	hideBanner();
+	$('info').classList.remove('hidden');
+	renderInfo();
+	loadEpg(cur).then(function () { if (infoOpen()) renderInfo(); });
+	clearTimeout(infoT); infoT = setTimeout(hideInfo, 30000);
+}
+function hideInfo() { clearTimeout(infoT); $('info').classList.add('hidden'); }
+function metaOf(p) {
+	return [hhmm(p.start) + ' – ' + hhmm(p.end), Math.round((p.end - p.start) / 60000) + ' min', p.gen].filter(Boolean).join('  ·  ');
+}
+function renderInfo() {
+	var c = cur, nn = nowNext(c), p = nn.now, n = nn.next, now = Date.now(), u = imgUrl(p, 640);
+	$('info').style.borderLeftColor = colorOf(c);
+	$('iname').textContent = c.n + '  ' + c.nm + '   ·   ' + hhmm(now);
+	$('iimg').classList.toggle('hidden', !u);
+	if (u && $('iimg').getAttribute('src') !== u) $('iimg').src = u;
+	$('it').textContent = p ? p.title : (!EPG[c.n] ? 'Guida non disponibile per questo canale' : c.ld && c.progs ? 'Nessuna informazione' : 'Carico la guida…');
+	$('iep').textContent = p && p.ep ? p.ep : '';
+	$('imeta').textContent = p ? metaOf(p) + '  ·  mancano ' + Math.max(1, Math.round((p.end - now) / 60000)) + ' min' : '';
+	$('ibar').style.visibility = p ? '' : 'hidden';
+	if (p) $('ibar').firstChild.style.width = Math.max(0, Math.min(100, (now - p.start) / (p.end - p.start) * 100)) + '%';
+	$('idesc').textContent =p ? (p.desc || 'Trama non disponibile.') : '';
+	$('inext').classList.toggle('hidden', !n);
+	if (!n) return;
+	$('int').textContent = n.title + (n.ep ? ' — ' + n.ep : '');
+	$('inmeta').textContent = metaOf(n);
+	$('ind').textContent = n.desc || '';
+}
+
 /* ---------------- Lista canali (render solo righe visibili) ---------------- */
 var panelOpen = false, tab = 'all', pFocus = 0, pTop = 0, VIS = 11;
-function shown() { return tab === 'fav' ? all.filter(function (c) { return favs[c.id]; }) : tab === 'in' ? inputs : all; }
-var TABS = ['all', 'fav', 'in'];
+function shown() {
+	if (tab === 'fav') return all.filter(function (c) { return favs[c.id]; });
+	if (tab === 'rec') return recent.map(byId).filter(Boolean);
+	return tab === 'in' ? inputs : all;
+}
+var TABS = ['all', 'fav', 'rec', 'in'];
 function nextTab(d) { setTab(TABS[(TABS.indexOf(tab) + d + TABS.length) % TABS.length]); }
 
 /* ---------------- Ingressi HDMI (eim) ---------------- */
@@ -423,7 +583,7 @@ var listT = null;
 function renderList() {
 	[].forEach.call($('ptabs').children, function (t) { t.classList.toggle('sel', t.getAttribute('data-tab') === tab); });
 	var l = shown(), html = '';
-	if (!l.length) html = '<div class="empty">' + (tab === 'fav' ? 'Nessun preferito: premi la stella su un canale.' : tab === 'in' ? 'Carico gli ingressi…' : 'Nessun canale.') + '</div>';
+	if (!l.length) html = '<div class="empty">' + (tab === 'fav' ? 'Nessun preferito: premi la stella su un canale.' : tab === 'in' ? 'Carico gli ingressi…' : tab === 'rec' ? 'Ancora nessun canale guardato.' : 'Nessun canale.') + '</div>';
 	for (var i = pTop; i < Math.min(l.length, pTop + VIS); i++) {
 		var c = l[i], nn = nowNext(c);
 		if (c.input) {
@@ -435,7 +595,8 @@ function renderList() {
 		html += '<div class="row' + (i === pFocus ? ' focused' : '') + (c === cur ? ' cur' : '') + '" data-i="' + i + '" style="top:' + ((i - pTop) * ROW_H) + 'px">'
 			+ logoHtml(c) + '<div class="t"><div class="nm">' + esc(c.nm) + '</div><div class="pg">'
 			+ (nn.now ? esc(hhmm(nn.now.start) + '  ' + nn.now.title) : '&nbsp;') + '</div></div>'
-			+ '<div class="st' + (favs[c.id] ? ' on' : '') + '" data-fav="' + i + '">' + ICON_STAR + '</div></div>';
+			+ '<div class="st' + (favs[c.id] ? ' on' : '') + '" data-fav="' + i + '">' + ICON_STAR + '</div>'
+			+ (nn.now ? '<i class="rp"><i style="width:' + Math.round((Date.now() - nn.now.start) / (nn.now.end - nn.now.start) * 100) + '%"></i></i>' : '') + '</div>';
 	}
 	$('plist').innerHTML = html;
 	// EPG lazy delle sole righe visibili; un solo ridisegno quando arrivano
@@ -452,20 +613,22 @@ function navOk() { var t = Date.now(); if (t - lastNav < 140) return false; last
 
 document.addEventListener('click', function (e) {
 	for (var el = e.target; el && el.nodeType === 1; el = el.parentNode) {
-		var a = el.getAttribute('data-act'), t = el.getAttribute('data-tab'), f = el.getAttribute('data-fav'), r = el.getAttribute('data-i');
+		var a = el.getAttribute('data-act'), t = el.getAttribute('data-tab'), f = el.getAttribute('data-fav'), r = el.getAttribute('data-i'), s = el.getAttribute('data-s');
 		if (a) { act(a); return; }
+		if (s != null) { schedOk(+s); return; }
+		if (el.id === 'sched') return;
 		if (t) { setTab(t); return; }
 		if (f != null) { toggleFav(shown()[+f]); return; }
 		if (r != null) { var c = shown()[+r]; closePanel(); tune(c); return; }
 		if (el.id === 'banner' || el.id === 'panel') return;
 	}
-	if (panelOpen) closePanel(); else showBanner();   // click sul video
+	if (infoOpen()) hideInfo(); else if (schedOpen) closeSched(); else if (panelOpen) closePanel(); else showBanner();   // click sul video
 });
 document.addEventListener('wheel', function (e) {
 	e.preventDefault();
 	if (!navOk()) return;
 	var d = e.deltaY > 0 ? 1 : -1;
-	if (panelOpen) movePanel(d); else step(-d);   // rotella su = canale successivo
+	if (schedOpen) moveSched(d); else if (panelOpen) movePanel(d); else step(-d);   // rotella su = canale successivo
 }, { passive: false });
 
 document.addEventListener('keydown', function (e) {
@@ -478,14 +641,32 @@ document.addEventListener('keydown', function (e) {
 	// CH+/CH- (log reale: 33 PageUp / 34 PageDown; test utente 0.1.9: con NuTV in primo piano la TV NON zappa da sé) -> zap nostro
 	if (k === 33 || k === 34 || k === 402 || k === 403 || k === 427 || k === 428) {
 		if (panelOpen) closePanel();
+		if (schedOpen) closeSched();
+		if (infoOpen()) hideInfo();
 		step(k === 33 || k === 402 || k === 427 ? 1 : -1);
 		e.preventDefault();
 		return;
 	}
 	if (k === 447 || k === 448 || k === 449) return;   // volume/muto: solo TV (OSD LG non disattivabile, niente doppioni)
-	// shortcut: 1536 "Unidentified" visto nel log dal telecomando reale, presunto tasto Ingressi (da confermare con l'utente)
-	if (k === 1536 || /input|source/i.test(String(e.key || ''))) { openInputs(); e.preventDefault(); return; }
+	// 1536/1537 = puntatore Magic Remote mostrato/nascosto (arriva toccando la rotella), NON il tasto Ingressi
+	if (k === 1536 || k === 1537) return;
+	if (/input|source/i.test(String(e.key || ''))) { openInputs(); e.preventDefault(); return; }
 	var back = k === 461 || k === 8 || k === 27;
+	if (schedOpen) {
+		if (k === 38) { if (navOk()) moveSched(-1); }
+		else if (k === 40) { if (navOk()) moveSched(1); }
+		else if (k === 13) schedOk(sFocus);
+		else if (back || k === 37) closeSched();
+		else return;
+		e.preventDefault(); return;
+	}
+	if (infoOpen()) {
+		if (k === 38 || k === 40 || back) hideInfo();
+		else if (k === 13) { hideInfo(); openPanel(); }
+		else if (k === 37 || k === 39) { hideInfo(); showBanner(true); setBFocus(0); clearTimeout(bannerT); bannerT = setTimeout(hideBanner, BANNER_MS * 2); }
+		else return;
+		e.preventDefault(); return;
+	}
 	if (panelOpen) {
 		var l = shown();
 		if (k === 38) { if (navOk()) movePanel(-1); }
@@ -501,14 +682,15 @@ document.addEventListener('keydown', function (e) {
 		else if (k === 39) setBFocus(bFocus + 1);
 		else if (k === 13) act(bButtons()[bFocus].getAttribute('data-act'));
 		else if (back) hideBanner();
-		else if (k === 38 || k === 40) { setBFocus(-1); step(k === 38 ? 1 : -1); }
+		else if (k === 38) showInfo();
+		else if (k === 40) hideBanner();
 		else return;
 		if (bannerOpen()) { clearTimeout(bannerT); bannerT = setTimeout(hideBanner, BANNER_MS * 2); }
 		e.preventDefault(); return;
 	}
 	switch (k) {
-		case 38: step(1); break;                   // ↑
-		case 40: step(-1); break;                  // ↓
+		case 38: showInfo(); break;                // ↑ info programma (zapping: CH± / rotella)
+		case 40: hideBanner(); break;              // ↓
 		case 37: case 39: showBanner(true); setBFocus(0); clearTimeout(bannerT); bannerT = setTimeout(hideBanner, BANNER_MS * 2); break;
 		case 13: openPanel(); break;
 		case 461: case 8: case 27:
@@ -568,7 +750,8 @@ function boot() {
 		busy(null);
 		toast('Lista canali non disponibile: ' + String(e && e.message || e).slice(0, 70), 10000);
 	});
-	setInterval(function () { if (bannerOpen()) renderBanner(); }, 30000);
+	armSleepWarn();
+	setInterval(function () { if (bannerOpen()) renderBanner(); if (infoOpen()) renderInfo(); }, 30000);
 }
 
 if (window.Reminders && Reminders.handleLaunch(APP_ID)) return;   // azione da notifica: esegue e chiude

@@ -3,7 +3,7 @@
 Modo: **Operate** (zapping a 3 m dal divano, Magic Remote). Il video è il protagonista; l'interfaccia è un overlay sobrio che sparisce da sola.
 
 ## Piattaforma (vincoli duri)
-- webOS 5.6, Chromium 79, piano grafico 1920×1080 fisso (niente responsive).
+- webOS 5.6, Chromium 68, piano grafico 1920×1080 fisso (niente responsive).
 - ES5, niente CDN, niente `gap` flex, `inset`, `filter: blur`, `backdrop-filter`. Flex con prefisso `-webkit-`.
 - CPU lenta: solo animazioni `opacity`/`transform`, render solo righe visibili.
 

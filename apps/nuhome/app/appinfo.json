@@ -1,0 +1,11 @@
+{
+  "id": "org.nuhome.launcher",
+  "version": "0.1.2",
+  "vendor": "NuHome",
+  "type": "web",
+  "main": "index.html",
+  "title": "NuHome",
+  "icon": "icon.png",
+  "largeIcon": "icon.png",
+  "uiRevision": "2"
+}

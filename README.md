@@ -7,7 +7,7 @@ Progetto di personalizzazione per **LG 49NANO866NA** (webOS 5.6.2). Contiene lau
 | Cartella | Uso |
 |---|---|
 | **hearth-it/** | Launcher sostitutivo Hearth, traduzione IT, icone UIcons |
-| **apps/** | App personalizzate (NusGuide = EPG, NuSport = calcio/sport, NuTV = Live TV, NusGallery/NusMusic/NusArt = media) |
+| **apps/** | App personalizzate (NusGuide = EPG, NuSport = sport, NuTV = Live TV, NusLive = canali Italia, NusStream = player catalogo, NusBrowser = browser WPE, NuHome = launcher base, NusGallery/NusMusic/NusArt = media) |
 | **tv/epg/** | Loop EPG offline (Rai + Sky), cache locale ogni 15 min |
 | **tv/reminders/** | Demone promemoria condiviso tra app, boot hook |
 | **tv/adblock/** | Adblock via hosts (StevenBlack unified ~77k domini) |
@@ -34,13 +34,15 @@ telnet <TV_IP> 23    # accesso root, shell senza password
 ### 1. Build Hearth (launcher IT)
 
 ```bash
-cd hearth-it/Hearth-main
+cd hearth-it
 npm install
-npm run build       # dist/ creata
-cd ../..
-npx ares-package hearth-it/Hearth-main/dist --outdir . --no-minify
+npm test           # test (richiede sh/Git Bash su Windows)
+npm run build      # typecheck + dist/ creata
+npx ares-package dist --outdir . --no-minify
 # tld.my.customlauncher_*.ipk creato
 ```
+
+Nota: `npm run package` usa `sh scripts/package.sh` (serve un `sh` POSIX); su Windows si può usare il `npx ares-package` sopra.
 
 Dev-install sulla TV:
 ```bash
@@ -55,11 +57,11 @@ luna-send -n 8 luna://com.webos.appInstallService/dev/install \
 
 ```bash
 cd apps/nusguide
-npx ares-package . --outdir . --no-minify
+npx ares-package app --outdir .
 # org.nusguide.app_*.ipk creato
 ```
 
-Ripetere per `apps/nusport`, `apps/nutv`, `apps/nusgallery`, `apps/nusmusic`, `apps/nusart`.
+Ripetere per `apps/nusport`, `apps/nutv`, `apps/nuslive`, `apps/nusstream`, `apps/nusbrowser`, `apps/nuhome`, `apps/nusgallery`, `apps/nusmusic`, `apps/nusart`.
 
 Dev-install:
 ```bash
@@ -88,13 +90,16 @@ tvshf.py <TV_IP> tv/cmds/cmds_adblock.txt 3 3
 ```
 D:\tv\_publish\lg-webos-hardening/
 ├── hearth-it/
-│   ├── Hearth-main/        # launcher source (React/Vite)
-│   ├── ICONS.md            # crediti icone UIcons
-│   └── make_icons.py       # generatore icone
+│   ├── src/ scripts/ public/ # launcher source (Vite + Preact/TS)
+│   └── ICONS.md            # crediti icone UIcons
 ├── apps/
 │   ├── nusguide/           # EPG (Rai, Mediaset, Sky)
 │   ├── nusport/            # Sport live (ESPN)
 │   ├── nutv/               # Live TV in-app
+│   ├── nuslive/            # Canali Italia (EPG 204 canali, zapping in-app)
+│   ├── nusstream/          # Player catalogo (HLS, tracce audio/sottotitoli)
+│   ├── nusbrowser/         # Browser sicuro (motore WPE nativo + shim)
+│   ├── nuhome/             # Launcher base vanilla JS
 │   ├── nusgallery/         # Foto/video da NAS
 │   ├── nusmusic/           # Musica da NAS
 │   └── nusart/             # Arte (Met Museum + NASA)
@@ -125,6 +130,7 @@ D:\tv\_publish\lg-webos-hardening/
 └── docs/
     ├── hardware.md         # specifiche TV
     ├── handover.md         # stato finale, note
+    ├── handover_checkpoint.md # checkpoint NuStream/Canali Italia
     ├── memory.md           # fatti stabili
     ├── documentazione.md   # checkpoints dettagliati
     ├── epg_sources_dtt.md  # sorgenti EPG
@@ -138,7 +144,7 @@ D:\tv\_publish\lg-webos-hardening/
 - **Adblock**: rigenera `hosts.block` ogni volta (StevenBlack ~77k domini, whitelist app TV/Rai/Mediaset/ESPN/Sky)
 - **OSD volume**: bind mount QML dal compositor, verificare con `systemctl status surface-manager-daemon`
 - **Magic Remote**: app supportano pointer, wheel, tasti VK standard (OK=13, Back=461)
-- **Chromium 79** (webOS 5.6): niente `gap` flex, niente `inset` CSS (usare top/left/right/bottom)
+- **Chromium 68 reale** (webOS 5.6, verificato su `:9998/json/version`; le note "Chromium 79" sono errate): niente `?.`, `??`, `globalThis` JS; niente `gap` e `inset` CSS (usare top/left/right/bottom)
 
 ## Crediti
 
@@ -154,5 +160,5 @@ Progetto educativo. App personalizzate: vanilla JS, niente dipendenze cloud.
 
 ---
 
-**Ultima aggiornamento**: 31/10/2026  
-Per dettagli técnici: vedi `docs/documentazione.md` e `docs/handover.md`
+**Ultima aggiornamento**: 01/11/2026  
+Per dettagli tecnici: vedi `docs/documentazione.md` e `docs/handover.md`

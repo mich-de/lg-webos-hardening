@@ -1,0 +1,11 @@
+{
+  "id": "org.nusbrowser.app",
+  "version": "0.3.1",
+  "vendor": "NusBrowser",
+  "type": "web",
+  "main": "index.html",
+  "title": "Browser Sicuro",
+  "icon": "icon.png",
+  "uiRevision": "2",
+  "disableBackHistoryAPI": true
+}

@@ -99,5 +99,47 @@ body { font-variant-numeric: tabular-nums; }
 #numbox, #busy { right: 96px; top: 54px; }
 .btn { -webkit-transition: -webkit-transform .1s ease-out; transition: transform .1s ease-out; }
 .btn.focused { -webkit-transform: scale(1.04); transform: scale(1.04); }
-  display: -webkit-flex; display: flex; -webkit-align-items: center; align-items: center; border-radius: 40px; background: rgba(10,14,22,.9); }
 .logo.inp { background: #2a3546; }
+/* 0.2.5 — orologio, accento canale, programmi, timer, avanzamento righe */
+#banner { border-left: 6px solid #4da3ff; background: -webkit-linear-gradient(left, rgba(10,14,22,.94), rgba(10,14,22,.80));
+  background: linear-gradient(90deg, rgba(10,14,22,.94), rgba(10,14,22,.80)); }
+#bclock { position: absolute; right: 0; top: -58px; font-size: 30px; font-weight: 700; padding: 6px 20px; border-radius: 14px; background: rgba(10,14,22,.86); }
+.btn { width: 132px; font-size: 22px; }
+#btnsleep.on { color: #ffc93c; }
+#btnsleep.on.focused { color: #fff; }
+.row .rp { position: absolute; left: 124px; right: 72px; bottom: 5px; height: 3px; border-radius: 2px; background: rgba(255,255,255,.12); overflow: hidden; }
+.row .rp i { display: block; height: 3px; background: #4da3ff; }
+#sched { position: absolute; right: 96px; top: 54px; bottom: 54px; width: 820px; background: rgba(10,14,22,.92); border-radius: 22px; padding: 20px 0; box-sizing: border-box; }
+#stitle { padding: 6px 30px 18px; font-size: 32px; font-weight: 700; }
+#slist { position: relative; height: 836px; overflow: hidden; }
+.srow .sh { width: 130px; font-size: 28px; font-weight: 700; color: #9fb0c8; -webkit-flex-shrink: 0; flex-shrink: 0; }
+.srow.cur .sh { color: #4da3ff; }
+.srow.past { opacity: .5; }
+.srow .rp { left: 142px; right: 24px; }
+.live { padding: 4px 12px; border-radius: 8px; background: #e0313b; color: #fff; font-size: 20px; font-weight: 800; letter-spacing: 1px; }
+/* 0.2.6 — dettaglio programma nel pannello Programmi */
+#slist { height: 532px; }
+#sdet { position: absolute; left: 24px; right: 24px; bottom: 64px; height: 230px; display: -webkit-flex; display: flex;
+  border-top: 1px solid rgba(255,255,255,.12); padding-top: 18px; }
+#sdimg { width: 288px; height: 162px; border-radius: 12px; margin-right: 22px; background: #1d2633; -webkit-flex-shrink: 0; flex-shrink: 0; }
+#sdtx { -webkit-flex: 1; flex: 1; min-width: 0; }
+#sdt { font-size: 28px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+#sdh { font-size: 22px; color: #4da3ff; margin: 4px 0 8px; }
+#sdd { font-size: 22px; line-height: 30px; color: #c7d2e2; max-height: 150px; overflow: hidden; }
+/* 0.2.7 — info programma (↑): in onda completo + successivo */
+#info { position: absolute; left: 96px; right: 96px; bottom: 54px; height: 640px; padding: 26px 34px; box-sizing: border-box;
+  border-left: 6px solid #4da3ff; border-radius: 22px; background: -webkit-linear-gradient(left, rgba(10,14,22,.95), rgba(10,14,22,.86));
+  background: linear-gradient(90deg, rgba(10,14,22,.95), rgba(10,14,22,.86)); }
+#iname { font-size: 28px; font-weight: 700; color: #9fb0c8; margin-bottom: 18px; }
+#inow { display: -webkit-flex; display: flex; height: 340px; }
+#iimg { width: 560px; height: 315px; border-radius: 14px; margin-right: 32px; background: #1d2633; object-fit: cover; -webkit-flex-shrink: 0; flex-shrink: 0; }
+#itx { -webkit-flex: 1; flex: 1; min-width: 0; }
+#it { font-size: 44px; font-weight: 800; line-height: 52px; max-height: 104px; overflow: hidden; margin-top: 4px; }
+#iep { font-size: 26px; color: #c7d2e2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+#imeta, #inmeta { font-size: 24px; color: #4da3ff; margin: 6px 0; }
+#ibar { width: 60%; margin: 8px 0 12px; }
+#idesc { font-size: 25px; line-height: 34px; color: #dfe7f3; max-height: 136px; overflow: hidden; }
+#inext { border-top: 1px solid rgba(255,255,255,.14); padding-top: 16px; margin-top: 10px; }
+#int { display: inline-block; font-size: 32px; font-weight: 700; vertical-align: middle; }
+#ind { font-size: 23px; line-height: 31px; color: #c7d2e2; max-height: 62px; overflow: hidden; }
+#ihint { position: absolute; right: 34px; top: 30px; font-size: 22px; color: #7f8ea6; }

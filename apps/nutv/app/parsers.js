@@ -24,6 +24,7 @@ function parseSky(text) {
 			end: Date.parse(e.endtime),
 			title: unent((e.content && e.content.contentTitle) || e.eventTitle || ''),
 			desc: unent(e.eventSynopsis || ''),
+			gen: [e.content && e.content.genre && e.content.genre.name, e.content && e.content.subgenre && e.content.subgenre.name].filter(Boolean).join(' · '),
 			img: img || '',
 			sized: !!img
 		});
@@ -78,6 +79,27 @@ function unent(s) {
 		.replace(/&quot;/g, '"').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&amp;/g, '&');
 }
 
+// Mediaset RSC (self.__next_f nella stessa pagina): StationItem con /diretta/<slug> + listings[] con trama
+// {description, shortDescription "S4 Ep10", startTime/endTime ISO UTC, title}. Copre le ore vicine ad adesso, non tutto il giorno.
+function parseMediasetRsc(html) {
+	var re = /self\.__next_f\.push\(\[1,("(?:[^"\\]|\\.)*")\]\)/g, m, s = '', out = {};
+	while ((m = re.exec(html))) { try { s += JSON.parse(m[1]); } catch (e) {} }
+	function str(x, k) {
+		var r = new RegExp('"' + k + '":("(?:[^"\\\\]|\\\\.)*")').exec(x);
+		try { return r ? JSON.parse(r[1]) : ''; } catch (e) { return ''; }
+	}
+	s.split('"__typename":"StationItem"').slice(1).forEach(function (seg) {
+		var sl = /\/diretta\/(\w+)"/.exec(seg);
+		if (!sl || out[sl[1]]) return;
+		out[sl[1]] = seg.split('"__typename":"Listing"').slice(1).map(function (x) {
+			var d = str(x, 'description'), g = /^\[([^\]]{2,30})\]\s*-?\s*/.exec(d);   // "[Azione] - trama"
+			return { title: str(x, 'title'), start: Date.parse(str(x, 'startTime')), end: Date.parse(str(x, 'endTime')),
+				desc: g ? d.slice(g[0].length) : d, gen: g ? g[1] : '', ep: str(x, 'shortDescription') };
+		}).filter(function (p) { return p.title && p.start && p.end > p.start; });
+	});
+	return out;
+}
+
 // Mediaset SSR: dopo ogni href="/diretta/<slug>" la riga del canale; 2 occorrenze di --epg-card-width per card
 // (ora ">HH:MM<" + titolo "text-headline-8b-m"). Solo oggi, niente durata: fine = inizio del successivo.
 function parseMediaset(html) {
@@ -98,7 +120,20 @@ function parseMediaset(html) {
 		}
 		progs.sort(function (a, b) { return a.start - b.start; });
 		for (var p = 0; p + 1 < progs.length; p++) progs[p].end = progs[p + 1].start;
+		// dopo mezzanotte la pagina mostra ancora il palinsesto di ieri sera: se così copre "adesso", sposta indietro di 1 giorno
+		var t = now.getTime();
+		if (progs.length && progs[0].start > t && progs.some(function (x) { return x.start - 86400000 <= t && t < x.end - 86400000; }))
+			progs.forEach(function (x) { x.start -= 86400000; x.end -= 86400000; });
 		out[m[0]] = progs;
+	}
+	// trama + orari esatti dal payload RSC, dove c'è: sostituisce le card che si sovrappongono
+	var rsc = parseMediasetRsc(html), k;
+	for (k in rsc) {
+		var r = rsc[k];
+		if (!r.length) continue;
+		var a = r[0].start, b = r[r.length - 1].end;
+		out[k] = (out[k] || []).filter(function (x) { return x.end <= a || x.start >= b; }).concat(r)
+			.sort(function (x, y) { return x.start - y.start; });
 	}
 	return out;
 }

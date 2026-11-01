@@ -1,0 +1,11 @@
+{
+  "id": "org.nuslive.app",
+  "version": "0.2.3",
+  "vendor": "NusLive",
+  "type": "web",
+  "main": "index.html",
+  "title": "Canali Italia",
+  "icon": "icon.png",
+  "requiredACG": [],
+  "uiRevision": "2"
+}

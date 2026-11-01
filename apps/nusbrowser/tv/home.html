@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="it"><head><meta charset="utf-8"><title>Browser Sicuro</title>
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'">
+<style>
+*{box-sizing:border-box;margin:0}
+html,body{height:100%;background:#0a0e16;color:#eef2f8;font:22px "DejaVu Sans",sans-serif;overflow:hidden}
+#w{padding:28px 48px}
+#u{display:flex;height:56px;align-items:center;padding:0 18px;border-radius:8px;background:#141a26;box-shadow:inset 0 0 0 2px #4da3ff;font-size:24px;white-space:nowrap;overflow:hidden}
+#u.v{color:#7f8ea6}
+#t{display:flex;flex-wrap:wrap;margin-top:20px}
+.k,.c{cursor:pointer;border:0;color:inherit;font:inherit;background:#141a26;border-radius:8px}
+.c{width:280px;height:64px;margin:0 12px 12px 0;text-align:left;padding:0 18px}
+#b{margin-top:8px}
+.r{display:flex;justify-content:center;margin-bottom:8px}
+.k{height:52px;min-width:88px;margin:0 4px;padding:0 10px}
+.k.w{min-width:200px}.k.s{min-width:360px}.k.g{background:#24508a}
+.k:hover,.c:hover,.k:focus,.c:focus{background:#4da3ff;color:#06121f;outline:0}
+#n{position:absolute;left:48px;bottom:18px;color:#9fb0c8;font-size:17px}
+</style></head><body><div id="w">
+<div id="u" class="v">Cerca o scrivi un indirizzo</div>
+<div id="t"></div><div id="b"></div>
+<div id="n">Motore WPE WebKit isolato dal sistema e dalla rete di casa. All'uscita la sessione viene cancellata.</div>
+</div><script>
+'use strict';
+var FAV=[['DuckDuckGo','https://duckduckgo.com/'],['Wikipedia','https://it.wikipedia.org/'],['ANSA','https://www.ansa.it/'],['Meteo','https://www.ilmeteo.it/']];
+var ROWS=['1234567890','qwertyuiop','asdfghjkl','zxcvbnm'],PLACE='Cerca o scrivi un indirizzo',text='';
+var u=document.getElementById('u'),t=document.getElementById('t'),b=document.getElementById('b');
+function btn(cls,label,fn){var e=document.createElement('button');e.className=cls;e.textContent=label;e.onclick=fn;return e}
+function show(){u.textContent=text||PLACE;u.className=text?'':'v'}
+function press(c){text+=c;show()}
+// Solo https: il proxy rifiuta il resto. Testo libero diventa ricerca.
+function go(){var s=text.trim();if(!s)return;location.href=(/\s/.test(s)||s.indexOf('.')<0)?'https://duckduckgo.com/?q='+encodeURIComponent(s):'https://'+s.replace(/^https?:\/\//,'')}
+FAV.forEach(function(f){t.appendChild(btn('c',f[0],function(){location.href=f[1]}))});
+ROWS.forEach(function(r){var d=document.createElement('div');d.className='r';r.split('').forEach(function(c){d.appendChild(btn('k',c,function(){press(c)}))});b.appendChild(d)});
+var x=document.createElement('div');x.className='r';
+['.','/','-'].forEach(function(c){x.appendChild(btn('k',c,function(){press(c)}))});
+x.appendChild(btn('k s','spazio',function(){press(' ')}));
+x.appendChild(btn('k w','cancella',function(){text=text.slice(0,-1);show()}));
+x.appendChild(btn('k w g','Vai',go));
+b.appendChild(x);
+function all(){return Array.prototype.slice.call(document.querySelectorAll('button'))}
+all()[0].focus();
+var D={ArrowLeft:[-1,0],ArrowRight:[1,0],ArrowUp:[0,-1],ArrowDown:[0,1]};
+document.addEventListener('keydown',function(e){
+  var d=D[e.key];
+  if(!d)return;
+  e.preventDefault();
+  var a=document.activeElement.getBoundingClientRect(),ax=a.left+a.width/2,ay=a.top+a.height/2,best=null,bd=1e9;
+  all().forEach(function(o){if(o===document.activeElement)return;var r=o.getBoundingClientRect(),ex=r.left+r.width/2-ax,ey=r.top+r.height/2-ay,al=ex*d[0]+ey*d[1];if(al<=0)return;var v=al+Math.abs(ex*d[1]+ey*d[0])*3;if(v<bd){bd=v;best=o}});
+  if(best)best.focus();
+});
+</script></body></html>

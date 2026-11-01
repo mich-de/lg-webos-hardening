@@ -7,7 +7,7 @@ Dati letti dal TV via shell root il 31/10/2026 (`/proc`, `/sys`, luna `systempro
 |---|---|
 | Modello | 49NANO866NA (NanoCell 49", serie NANO86, anno modello **2020** — otaId `W20H`) |
 | Produttore | LG Electronics |
-| Seriale | <redatto> |
+| Seriale | 005MASX6A982 |
 | Board | `K6HP_DVB_EU` (hardwareVersion 1, area EU) |
 | otaId | `HE_DTV_W20H_AFADABAA` |
 | Firmware | 04.64.00 (webOS **5.6.2**, codename `jhericurl-jimna`) |
@@ -63,8 +63,8 @@ Dati letti dal TV via shell root il 31/10/2026 (`/proc`, `/sys`, luna `systempro
 ## Connettività
 | Campo | Valore |
 |---|---|
-| Ethernet | `eth0` MAC <redatto> |
-| Wi-Fi | `wlan0` MAC <redatto> (+ `p2p0` Wi-Fi Direct) |
+| Ethernet | `eth0` MAC 64:95:6c:c3:15:71 |
+| Wi-Fi | `wlan0` MAC 60:ab:14:c0:97:e6 (+ `p2p0` Wi-Fi Direct) |
 | USB | 3 porte |
 | HDMI | HDCP 2.x, driver `rtk_hdmi` (CEC/SimpLink) |
 | Tuner | DVB-T2/C + **satellite** (S2), tuner singolo (`supportDualTuner: false`), slot CI |

@@ -1,0 +1,12 @@
+{
+  "id": "org.nusstream.app",
+  "version": "0.4.3",
+  "vendor": "NusStream",
+  "type": "web",
+  "main": "index.html",
+  "title": "NusStream",
+  "requiredACG": [],
+  "icon": "images/icon.png",
+  "largeIcon": "images/largeIcon.png",
+  "uiRevision": "2"
+}
