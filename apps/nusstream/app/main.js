@@ -1,4 +1,4 @@
-/* NusStream 0.4.1 — Netflix TV 2025 Edition — org.nusstream.app
+/* NusStream 0.4.4 — Netflix TV 2025 Edition — org.nusstream.app
  * Vanilla JS ES5, target webOS 5.x / Chromium 79.
  * Novità 0.4.1:
  *   - Fix Glitches & Stutter: Web Worker HLS abilitato per demuxing multithread + buffer controllato
@@ -14,12 +14,12 @@
 
 /* ---------------- Config ---------------- */
 var SEEDS = [
-	'https://streamingcommunityz.day',
-	'https://streamingcommunityz.shiksha',
-	'https://streamingcommunityz.rip',
-	'https://streamingcommunityz.taxi'
+	'https://streamingcommunityz.dad',
+	'https://streamingcommunityz.store',
+	'https://streamingcommunityz.one',
+	'https://streamingcommunityz.build'
 ];
-var CDN0 = 'https://cdn.streamingcommunityz.build/images/';
+var CDN0 = 'https://cdn.streamingcommunityz.dad/images/';
 var LS_HOST = 'nusstream.net';
 var LS_PROG = 'nusstream.prog';
 var LS_WATCH = 'nusstream.watchlist';
@@ -158,7 +158,20 @@ function cfgSync(page) {
 	if (dirty) engSave();
 }
 function siteGet(url, accept, cb) {
-	if (eng.confirmed) { netGet(url, accept, cb); return; }
+	if (eng.confirmed) {
+		netGet(url, accept, function (r) {
+			/* host memorizzato non più raggiungibile (dominio cambiato/DNS): riparti dai seed */
+			if (r.ok || (r.status >= 400 && r.status < 500 && r.status !== 403)) { cb(r); return; }
+			var old = eng.host;
+			eng.confirmed = false;
+			eng.cdn = CDN0;
+			engSave();
+			var rest = [], i;
+			for (i = 0; i < SEEDS.length; i++) if (SEEDS[i] !== old) rest.push(SEEDS[i]);
+			walk(rest.length ? rest : SEEDS.slice(0));
+		});
+		return;
+	}
 	walk(SEEDS.slice(0));
 	function walk(seeds) {
 		if (!seeds.length) { cb({ ok: false, status: 0, text: '' }); return; }
@@ -1952,7 +1965,7 @@ window.__nus = {
 	play: play,
 	apriDettaglio: apriDettaglio,
 	resolveStream: resolveStream,
-	toggleTracksDrawer: toggleTracksDrawer,
+	toggleTracksDrawer: openTracksDrawer,
 	updateRealStreamBadges: updateRealStreamBadges
 };
 })();

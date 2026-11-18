@@ -3,8 +3,15 @@
 ## Cos'è
 App webOS LG (TV, webOS 5.6.2) che fa da client per StreamingCommunity, UI stile Netflix.
 - Source: `app/{appinfo.json,index.html,main.css,main.js,images/}` — vanilla JS ES5 (target Chromium 79), 867 righe main.js, 190 main.css.
-- id app: `org.nusstream.app`, versione in `app/appinfo.json` (0.2.0).
+- id app: `org.nusstream.app`, versione in `app/appinfo.json` (0.4.5).
 - Zero framework/bundler: `main.js` è sorgente non minificata.
+
+## Dominio StreamingCommunity (instabile)
+- Il sito cambia dominio ogni poche settimane. Stato 18/11/2026: `https://streamingcommunityz.dad` (app_url + `cdn.streamingcommunityz.dad`).
+- I vecchi `.nexus/.day/.rip/.shiksha/.taxi/build` **non risolvono più** (DNS bloccato/NXDOMAIN dalla LAN): non rimetterli come unico seed.
+- Embed player: host `vixcloud.cc` (prima `.co`, ora morto). L'app non hardcoda l'host: regex generica su `/embed/\d+`.
+- `siteGet` ha self-heal: se l'host salvato in localStorage (`nusstream.net`, `confirmed:true`) non risponde, azzera `confirmed`, riporta `cdn` a `CDN0` e ri-walka `SEEDS`.
+- Aggiornamento automatico: `.github/workflows/nusstream-update.yml` (cron 05:00) + `apps/nusstream/tools/update_domains.mjs` (probe TLD, riscrive SEEDS/CDN0, bump patch, `ares-package`, commit ipk). Dry-run locale: `node tools/update_domains.mjs --dry-run`.
 
 ## Accesso TV
 - IP: `192.168.188.80` (DHCP fissa finora). PC dev: `192.168.188.81`.

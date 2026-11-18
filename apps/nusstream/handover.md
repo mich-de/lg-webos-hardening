@@ -1,4 +1,10 @@
-# NuStream (v0.4.2) & Canali Italia (v0.2.1) — Handover
+# NuStream (v0.4.5) & Canali Italia (v0.2.1) — Handover
+
+## Novità NuStream v0.4.5 (fix "app non funziona")
+1. **Domini aggiornati**: `SEEDS` = `streamingcommunityz.dad` (canonico) + `.store/.one/.build`, `CDN0` = `cdn.streamingcommunityz.dad/images/`. I vecchi `.nexus/.day/.rip/.shiksha/.taxi` sono morti (nome non risolto).
+2. **Self-heal host**: `siteGet()` non si fida più dell'host salvato in localStorage — se la richiesta fallisce (status 0/5xx) azzera `confirmed`, resetta il CDN e ri-walka i seed. Prima l'app restava vuota per sempre dopo un cambio dominio.
+3. **Fix `window.__nus`**: l'export puntava a `toggleTracksDrawer` (inesistente) → `ReferenceError` a fine script; ora esporta `openTracksDrawer`.
+4. **Automazione**: `.github/workflows/nusstream-update.yml` (cron 05:00 + manuale) + `apps/nusstream/tools/update_domains.mjs` — probe TLD, riscrittura SEEDS/CDN0, bump patch, `ares-package`, commit di `main.js`/`appinfo.json`/ipk e artifact.
 
 ## Novità NuStream v0.4.2
 
