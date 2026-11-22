@@ -1,9 +1,10 @@
 # Deploy Nusstream.ipk sulla TV via telnet root (porta 23), metodo dei cmds_deploy*.
 # Uso: python deploy.py <file.ipk>
 import sys, time, pathlib
-from tvrun import run
 
 APPDIR = pathlib.Path(__file__).resolve().parent
+sys.path.insert(0, str(APPDIR))
+from tvrun import run
 
 HOST = "192.168.188.80"
 PC_FALLBACK = "192.168.188.81"
