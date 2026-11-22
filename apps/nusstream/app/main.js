@@ -63,6 +63,7 @@ function scrIn(el, inline) {
 	else el.scrollIntoView({ block: 'nearest' });
 }
 function clockTick() {
+	if (document.body.classList.contains('in-player')) return;
 	var d = new Date(), p = function (n) { return (n < 10 ? '0' : '') + n; };
 	var h = p(d.getHours()), m = p(d.getMinutes()), s = p(d.getSeconds());
 	if ($('clock')) $('clock').textContent = h + ':' + m + ':' + s;
@@ -181,7 +182,7 @@ function engSave() { lsSet(LS_HOST, { host: eng.host, cdn: eng.cdn, confirmed: e
 function netGet(url, accept, cb) {
 	var x = new XMLHttpRequest();
 	x.open('GET', url, true);
-	x.timeout = 25000;
+	x.timeout = 12000;
 	if (accept) x.setRequestHeader('Accept', accept);
 	x.onload = function () { cb({ ok: x.status >= 200 && x.status < 300, status: x.status, text: x.responseText || '' }); };
 	x.onerror = x.ontimeout = function () { cb({ ok: false, status: 0, text: '' }); };
@@ -1791,7 +1792,7 @@ function play(item) {
 				}
 			}
 			var now = Date.now();
-			if (now - lastSave > 2500 && v.duration > 0) {
+			if (now - lastSave > 15000 && v.duration > 0) {
 				lastSave = now;
 				progSave(item, v.currentTime, v.duration);
 			}
