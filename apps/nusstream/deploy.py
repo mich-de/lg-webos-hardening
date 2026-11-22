@@ -1,8 +1,9 @@
 # Deploy Nusstream.ipk sulla TV via telnet root (porta 23), metodo dei cmds_deploy*.
 # Uso: python deploy.py <file.ipk>
-import sys, time
-sys.path.insert(0, r"D:\tv")
+import sys, time, pathlib
 from tvrun import run
+
+APPDIR = pathlib.Path(__file__).resolve().parent
 
 HOST = "192.168.188.80"
 PC_FALLBACK = "192.168.188.81"
@@ -49,11 +50,11 @@ print("== verifica file installati ==")
 APP = "/media/developer/apps/usr/palm/applications/org.nusstream.app"
 out = tv(f"md5sum {APP}/main.css {APP}/main.js")
 import hashlib, pathlib, subprocess, tempfile
-local_css = hashlib.md5(pathlib.Path(r"D:\tv\nusstream\app\main.css").read_bytes()).hexdigest()
+local_css = hashlib.md5((APPDIR / "app" / "main.css").read_bytes()).hexdigest()
 # main.js è minificato dal packager: ricalcola con lo stesso terser del CLI
 tmp = pathlib.Path(tempfile.gettempdir(), "nusstream_mk.js")
 terser = r"D:\CentroAI\data\npm\global\node_modules\@webos-tools\cli\node_modules\terser\bin\terser"
-subprocess.run(["node", terser, r"D:\tv\nusstream\app\main.js", "-c", "-m", "-o", str(tmp)], check=True)
+subprocess.run(["node", terser, str(APPDIR / "app" / "main.js"), "-c", "-m", "-o", str(tmp)], check=True)
 local_js = hashlib.md5(tmp.read_bytes()).hexdigest()
 if local_css not in out.lower():
     sys.exit(f"main.css non aggiornato (atteso {local_css})")
