@@ -1824,7 +1824,14 @@ function playCore(item) {
 				nudgeOffset: 0.1,
 				nudgeMaxRetry: 5,
 				startFragPrefetch: true,
-				defaultAudioCodec: 'mp4a.40.2'
+				defaultAudioCodec: 'mp4a.40.2',
+				startLevel: -1,
+				abrEwmaDefaultEstimate: 8000000,
+				abrEwmaDefaultEstimateMediaSource: 8000000,
+				abrBandWidthFactor: 0.9,
+				abrBandWidthUpFactor: 0.6,
+				testBandwidth: false,
+				capLevelToPlayerSize: false
 			});
 			curHls = hls;
 			hls.loadSource(src);
@@ -1837,6 +1844,7 @@ function playCore(item) {
 				var p = v.play();
 				if (p && p.catch) p.catch(function () {});
 				updateRealStreamBadges();
+				console.log('[hls] levels', hls.levels.map(function (l) { return l.width + 'x' + l.height; }).join(' '));
 				if (hls.audioTracks && hls.audioTracks.length) tracksAudIdx = hls.audioTrack;
 				tracksSubIdx = hls.subtitleTrack;
 			});
