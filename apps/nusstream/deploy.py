@@ -4,7 +4,26 @@ import sys, time
 sys.path.insert(0, r"D:\tv")
 from tvrun import run
 
-HOST, PC = "192.168.188.80", "192.168.188.81"
+HOST = "192.168.188.80"
+PC_FALLBACK = "192.168.188.81"
+
+def detect_pc_ip(host, port=23, timeout=2.0):
+    """IP LAN del PC che la TV puo' raggiungere: sorgente del socket verso la TV."""
+    import socket
+    try:
+        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        s.settimeout(timeout)
+        try:
+            s.connect((host, port))
+            return s.getsockname()[0]
+        finally:
+            s.close()
+    except OSError as e:
+        print(f"auto-detect IP fallito ({e}), uso {PC_FALLBACK}")
+        return PC_FALLBACK
+
+PC = detect_pc_ip(HOST)
+print(f"PC IP: {PC}")
 ipk = sys.argv[1]
 url = f"http://{PC}:8081/nusstream/{ipk}"
 

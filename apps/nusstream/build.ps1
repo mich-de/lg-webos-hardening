@@ -18,10 +18,10 @@ Write-Host "OK: $ipk"
 
 if ($NoInstall) { exit 0 }
 
-# 2) server statico sul PC (root D:\tv, porta 8081) — serve anche test/shot.js
+# 2) server statico sul PC (root apps\, porta 8081) — /nusstream/<ipk> -> apps\nusstream\<ipk>
 if (-not (Get-NetTCPConnection -LocalPort 8081 -State Listen -ErrorAction SilentlyContinue)) {
-    Write-Host "== avvio server http :8081 (root D:\\tv) =="
-    Start-Process python -ArgumentList '-m','http.server','8081','--bind','0.0.0.0','--directory','D:\tv' -WindowStyle Hidden
+    Write-Host "== avvio server http :8081 (root $PSScriptRoot) =="
+    Start-Process python -ArgumentList '-m','http.server','8081','--bind','0.0.0.0','--directory',"$PSScriptRoot" -WindowStyle Hidden
     Start-Sleep -Seconds 2
 }
 
