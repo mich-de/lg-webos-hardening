@@ -46,7 +46,78 @@ function decEnt(s) {
 	return t;
 }
 function esc(s) { return decEnt(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
-function imgCss(u) { return u ? 'background-image:url(\'' + String(u).replace(/'/g, '%27') + '\')' : ''; }
+/* Background images: deferred via data-bg + one shared IntersectionObserver.
+   imgAttr(u) emits the markup attribute; setBg(el, u) is the direct-element path.
+   Images start loading only ~300px before entering the viewport. */
+var bgIO = null, bgMO = null, bgObs = [];
+function bgLazyOk() {
+	return ('IntersectionObserver' in window) && ('MutationObserver' in window);
+}
+function bgApply(el) {
+	var u = el.getAttribute('data-bg');
+	if (!u) return;
+	el.style.backgroundImage = 'url("' + u.replace(/"/g, '%22') + '")';
+}
+function bgWatch(el) {
+	if (!el || !el.getAttribute) return;
+	if (!el.getAttribute('data-bg')) return;
+	if (el.getAttribute('data-bg-done')) return;
+	el.setAttribute('data-bg-done', '1');
+	if (!bgLazyOk()) { bgApply(el); return; }
+	if (!bgIO) {
+		bgIO = new IntersectionObserver(function (ents) {
+			for (var i = 0; i < ents.length; i++) {
+				if (!ents[i].isIntersecting) continue;
+				bgApply(ents[i].target);
+				bgIO.unobserve(ents[i].target);
+			}
+		}, { rootMargin: '300px' });
+	}
+	bgIO.observe(el);
+	bgObs.push(el);
+}
+/* Cards are rebuilt by innerHTML; drop detached targets so the observer list stays small. */
+function bgPrune() {
+	var keep = [];
+	for (var i = 0; i < bgObs.length; i++) {
+		var el = bgObs[i];
+		if (el.isConnected === false) { try { bgIO.unobserve(el); } catch (e) {} }
+		else keep.push(el);
+	}
+	bgObs = keep;
+}
+function imgAttr(u) { return u ? ' data-bg="' + esc(u) + '"' : ''; }
+function setBg(el, u) {
+	if (!el) return;
+	if (bgIO) bgIO.unobserve(el);
+	el.removeAttribute('data-bg-done');
+	el.style.backgroundImage = '';
+	if (!u) { el.removeAttribute('data-bg'); return; }
+	el.setAttribute('data-bg', String(u));
+	bgWatch(el);
+}
+function bgScan(root) {
+	if (!root || !root.querySelectorAll) return;
+	var l = root.querySelectorAll('[data-bg]');
+	for (var i = 0; i < l.length; i++) bgWatch(l[i]);
+}
+function bgBoot() {
+	bgScan(document);
+	if (!bgLazyOk()) return;
+	bgMO = new MutationObserver(function (recs) {
+		for (var i = 0; i < recs.length; i++) {
+			var an = recs[i].addedNodes;
+			for (var j = 0; j < an.length; j++) {
+				var n = an[j];
+				if (!n || n.nodeType !== 1) continue;
+				bgWatch(n);
+				bgScan(n);
+			}
+		}
+		if (bgObs.length > 300) bgPrune();
+	});
+	bgMO.observe(document.body, { childList: true, subtree: true });
+}
 function lsGet(k, d) { try { var v = localStorage.getItem(k); return v == null ? d : JSON.parse(v); } catch (e) { return d; } }
 function lsSet(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) { } }
 function mmss(sec) {
@@ -521,7 +592,7 @@ var tracksSubIdx = -1;
 function cardHtml(it, taller) {
 	var img = it.thumb || it.cover || it.backdrop || it.poster || '';
 	var name = it.sTitle || it.title;
-	return '<div class="cimg' + (taller ? ' taller' : '') + (img ? '' : ' cempty') + '"' + (img ? ' style="' + imgCss(img) + '"' : '') + '>'
+	return '<div class="cimg' + (taller ? ' taller' : '') + (img ? '' : ' cempty') + '"' + imgAttr(img) + '>'
 		+ (img ? '' : esc(it.n ? 'S' + it.season + 'E' + it.n : (it.isTv ? 'Serie' : 'Film'))) + '</div>'
 		+ '<div class="cname">' + esc(name) + (it.sTitle ? '<span>&middot; ' + esc(it.title) + '</span>' : '') + '</div>'
 		+ (it.score ? '<div class="cbadge">&#9733; ' + esc(it.score) + '</div>' : '')
@@ -700,9 +771,9 @@ function heroPaint(animate) {
 	heroUpd = heroKey(it);
 	var v = $('hero');
 	var bg = it.backdrop || it.cover || it.poster || '';
-	$('herobg').setAttribute('style', imgCss(bg));
+	setBg($('herobg'), bg);
 	$('hname').innerHTML = it.logo
-		? '<div id="hlogo" style="' + imgCss(it.logo) + '"></div>'
+		? '<div id="hlogo"' + imgAttr(it.logo) + '></div>'
 		: '<h1>' + esc(it.title) + '</h1>';
 	var metaHtml = '<span class="hbadge ' + (it.isTv ? 'tv' : 'film') + '">' + (it.isTv ? 'SERIE TV' : 'FILM') + '</span>';
 	if (it.year) metaHtml += '<span>' + esc(it.year) + '</span>';
@@ -812,6 +883,12 @@ function renderHome() {
 	$('shelves').innerHTML = h || '<div id="skeleton"><div class="sk sk-rail"></div><div class="sk sk-rail wide"></div><div class="sk sk-rail"></div></div>';
 	scrIn(document.querySelector('#shelves .card.focused'), true);
 	renderHero();
+}
+/* Startup calls land within the same tick (4 shelves sources): coalesce into one render. */
+function scheduleRender() {
+	if (window.__renderPending) return;
+	window.__renderPending = true;
+	setTimeout(function () { window.__renderPending = false; renderHome(); }, 0);
 }
 function firstRow() {
 	for (var j = 0; j < shelves.length; j++) if (shelves[j].items && shelves[j].items.length) return j;
@@ -1187,11 +1264,11 @@ function renderDettaglio() {
 	if (d.runtime) badges += '<span class="mbadge">' + d.runtime + ' min</span>';
 	badges += '<span class="mbadge">HD</span>';
 	if (d.score) badges += '<span class="mbadge red">&#9733; ' + esc(d.score) + '</span>';
-	var h = (back ? '<div id="dback" style="' + imgCss(back) + '"></div><div id="dshade"></div>' : '');
+	var h = (back ? '<div id="dback"' + imgAttr(back) + '></div><div id="dshade"></div>' : '');
 	h += '<div id="dbody">';
-	if (d.poster) h += '<div id="dposter" style="' + imgCss(d.poster) + '"></div>';
+	if (d.poster) h += '<div id="dposter"' + imgAttr(d.poster) + '></div>';
 	h += '<div id="dinfo">';
-	if (d.logo) h += '<div id="dlogo" style="' + imgCss(d.logo) + '"></div><div id="dtitle" class="vh">' + esc(d.title) + '</div>';
+	if (d.logo) h += '<div id="dlogo"' + imgAttr(d.logo) + '></div><div id="dtitle" class="vh">' + esc(d.title) + '</div>';
 	else h += '<h1>' + esc(d.title) + '</h1>';
 	h += '<div class="dmeta">' + badges + '</div>'
 		+ (d.genres ? '<div class="dgen">' + esc(d.genres) + '</div>' : '')
@@ -1249,7 +1326,7 @@ function renderDetEpisodi() {
 		var e = dEps[i], pk = progGet(e.url);
 		var plot = e.plot ? (e.plot.length > 120 ? e.plot.slice(0, 120) + '…' : e.plot) : '';
 		h += '<div class="ep' + (dFocus === 4 && dEp === i ? ' focused' : '') + '" data-ep="' + i + '">'
-			+ '<div class="eimg"' + (e.thumb ? ' style="' + imgCss(e.thumb) + '"' : '') + '></div>'
+			+ '<div class="eimg"' + imgAttr(e.thumb) + '></div>'
 			+ '<div class="einfo"><div class="etit">' + esc(e.title) + '</div>'
 			+ (plot ? '<div class="eplot">' + esc(plot) + '</div>' : '')
 			+ (pk ? '<div class="pbar"><i style="width:' + pct(pk.p / (pk.d || 1)) + '%"></i></div>' : '')
@@ -1591,7 +1668,33 @@ var curPlayItem = null;
 var curHls = null;
 var curIframe = null;
 
+/* hls.min.js (412 KB) is loaded on demand instead of parser-blocking in index.html.
+   First play() triggers the download; queued callbacks flush on load OR error, so the
+   native-HLS / iframe fallback path in playCore stays reachable if the file is missing. */
+function hlsFlush() {
+	var q = window.__hlsQueue || [];
+	window.__hlsQueue = [];
+	for (var i = 0; i < q.length; i++) { try { q[i](); } catch (e) { console.error(e); } }
+}
+function ensureHls(cb) {
+	if (window.Hls) { cb(); return; }
+	if (window.__hlsLoading) { window.__hlsQueue.push(cb); return; }
+	window.__hlsLoading = true;
+	window.__hlsQueue = [cb];
+	var s = document.createElement('script');
+	s.src = 'hls.min.js';
+	s.async = true;
+	s.onload = hlsFlush;
+	s.onerror = hlsFlush;
+	document.head.appendChild(s);
+}
+var playSeq = 0;
 function play(item) {
+	var seq = ++playSeq;
+	ensureHls(function () { if (seq === playSeq) playCore(item); });
+}
+
+function playCore(item) {
 	curPlayItem = item;
 	screen = ST.PLAY;
 	document.body.classList.add('in-player');
@@ -1803,6 +1906,7 @@ function play(item) {
 }
 
 function stopPlay() {
+	playSeq++;
 	clearInterval(autoNextTimer);
 	if (curHls) {
 		try { curHls.destroy(); } catch (e) {}
@@ -2320,7 +2424,7 @@ function avviaHome() {
 		});
 	}
 
-	renderHome();
+	scheduleRender();
 	apiHome(function (res) {
 		if (res) {
 			if (res.trending) shelves.push({ title: 'TRENDING', items: res.trending });
@@ -2329,10 +2433,10 @@ function avviaHome() {
 		}
 		ordine();
 		if (!shelves.length) $('shelves').innerHTML = '<div class="derr" style="padding-top:30vh;text-align:center">Impossibile contattare StreamingCommunity.<br><br>Riprova più tardi (Back per riavviare).</div>';
-		else renderHome();
+		else scheduleRender();
 	});
-	apiArchive('tv', 1, function (r) { if (r && r.items.length) shelves.push({ title: 'SERIE TV · ULTIMI EPISODI', items: r.items.slice(0, 18), arch: 'tv' }); ordine(); renderHome(); });
-	apiArchive('movie', 1, function (r) { if (r && r.items.length) shelves.push({ title: 'FILM · NUOVI', items: r.items.slice(0, 18), arch: 'movie' }); ordine(); renderHome(); });
+	apiArchive('tv', 1, function (r) { if (r && r.items.length) shelves.push({ title: 'SERIE TV · ULTIMI EPISODI', items: r.items.slice(0, 18), arch: 'tv' }); ordine(); scheduleRender(); });
+	apiArchive('movie', 1, function (r) { if (r && r.items.length) shelves.push({ title: 'FILM · NUOVI', items: r.items.slice(0, 18), arch: 'movie' }); ordine(); scheduleRender(); });
 }
 
 /* Splash di avvio -> profili (prima apertura) o home */
@@ -2348,6 +2452,7 @@ function bootApp() {
 		setTimeout(function () { if (sp) sp.className = 'hidden'; }, 480);
 	}, 1600);
 }
+bgBoot();
 bootApp();
 
 /* ---------------- Info & Credits ---------------- */
