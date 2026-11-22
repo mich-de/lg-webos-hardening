@@ -263,11 +263,15 @@ function netGet(url, accept, cb) {
 function dataPage(html) {
 	var m = /data-page="(.*?)"\s*>/.exec(html || '');
 	if (!m) return null;
-	var raw = m[1]
-		.replace(/&quot;/g, '"').replace(/&#039;|&apos;/g, "'")
-		.replace(/&lt;/g, '<').replace(/&gt;/g, '>')
-		.replace(/&amp;/g, '&');
-	try { var j = JSON.parse(raw); cfgSync(j); return j; } catch (e) { return null; }
+	var raw = decEnt(m[1]);
+	try { var j = JSON.parse(raw); cfgSync(j); return j; } catch (e) {
+		// decEnt also turns numeric quote entities into real quotes, which can break JSON:
+		// retry with the legacy quote-safe decode (per-field decEnt fixes the rest later).
+		try {
+			var j2 = JSON.parse(m[1].replace(/&quot;/g, '"').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&amp;/g, '&'));
+			cfgSync(j2); return j2;
+		} catch (e2) { return null; }
+	}
 }
 function cfgSync(page) {
 	var p = page && page.props ? page.props : null, dirty = false;
@@ -353,10 +357,10 @@ function parseTitles(arr) {
 		out.push({
 			url: t.id + '|' + t.slug,
 			tid: t.id, slug: t.slug, isTv: (t.type || 'movie') === 'tv',
-			title: t.name || '?', poster: poster, backdrop: back, cover: cover, logo: logo,
+			title: decEnt(t.name || '?'), poster: poster, backdrop: back, cover: cover, logo: logo,
 			score: (t.score && t.score !== '0') ? String(t.score) : '',
 			year: dt.length >= 4 ? dt.slice(0, 4) : '',
-			plot: t.plot || ''
+			plot: decEnt(t.plot || '')
 		});
 	}
 	return out;
@@ -424,7 +428,7 @@ function apiDetail(item, cb) {
 		};
 		var seasons = [], sa = t.seasons || [], i;
 		for (i = 0; i < sa.length; i++)
-			if (sa[i] && sa[i].number >= 0) seasons.push({ n: sa[i].number, ep: sa[i].episodes_count | 0, plot: sa[i].plot || '' });
+			if (sa[i] && sa[i].number >= 0) seasons.push({ n: sa[i].number, ep: sa[i].episodes_count | 0, plot: decEnt(sa[i].plot || '') });
 		var trailer = '', tra = t.trailers || [];
 		for (i = 0; i < tra.length; i++) {
 			var o = tra[i] || {};
@@ -439,7 +443,7 @@ function apiDetail(item, cb) {
 			if (im[j].filename && im[j].type === 'logo' && !logo) logo = eng.cdn + im[j].filename;
 		}
 		cb({
-			plot: t.plot || item.plot || '', genres: names('genres'), cast: names('main_actors', 6),
+			plot: decEnt(t.plot || item.plot || ''), genres: names('genres'), cast: names('main_actors', 6),
 			director: names('main_directors'), runtime: t.runtime > 0 ? t.runtime : 0,
 			seasons: seasons, trailer: trailer, backdrop: back, logo: logo
 		});
@@ -462,10 +466,10 @@ function apiEpisodes(item, n, cb) {
 			out.push({
 				url: item.tid + '|' + item.slug + '|' + e.id,
 				tid: item.tid, slug: item.slug, epId: e.id, n: e.number,
-				title: e.number + '. ' + (e.name || ('Episodio ' + e.number)),
+				title: decEnt(e.number + '. ' + (e.name || ('Episodio ' + e.number))),
 				thumb: thumb || item.poster,
 				isTv: true, eps: true, sTitle: item.title, season: n,
-				plot: e.plot || ''
+				plot: decEnt(e.plot || '')
 			});
 		}
 		out.sort(function (x, y) { return x.n - y.n; });
