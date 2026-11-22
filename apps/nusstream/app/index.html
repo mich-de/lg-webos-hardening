@@ -38,6 +38,18 @@
         <svg class="nav-ico" viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path></svg>
         <span class="nav-label">La mia lista</span>
       </div>
+      <div class="nav-item" data-nav="credits" role="button" aria-label="Info e credits">
+        <svg class="nav-ico" viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M12 16v-4"></path><path d="M12 8h.01"></path></svg>
+        <span class="nav-label">Info e credits</span>
+      </div>
+      <div class="nav-item" data-nav="profiles" role="button" aria-label="Profili">
+        <svg class="nav-ico" viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M22 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+        <span class="nav-label">Profili</span>
+      </div>
+      <div class="nav-item" data-nav="exit" role="button" aria-label="Esci">
+        <svg class="nav-ico" viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18.36 6.64a9 9 0 1 1-12.73 0"></path><line x1="12" y1="2" x2="12" y2="12"></line></svg>
+        <span class="nav-label">Esci</span>
+      </div>
     </nav>
     <div id="side-clock">--:--</div>
   </aside>
@@ -72,6 +84,7 @@
             </div>
           </div>
         </div>
+        <div id="hdots"></div>
       </div>
       <div id="shelves"></div>
     </div>
@@ -174,6 +187,74 @@
       <div id="playmsg" class="hidden"></div>
     </div>
 
+    <!-- Splash di avvio -->
+    <div id="splash">
+      <div id="splash-inner">
+        <div id="splash-logo">Nus<span>Stream</span></div>
+        <div id="splash-sub">CINEMA &amp; SERIE · ITALIANO</div>
+        <div id="splash-bar"><i></i></div>
+      </div>
+    </div>
+
+    <!-- Chi sta guardando (profili) -->
+    <div id="profilesview" class="hidden">
+      <div id="pvhead">Chi sta guardando?</div>
+      <div id="pvlist"></div>
+      <div id="pvactions"></div>
+      <div id="pvhint">←→ Scegli profilo · ↓ Azioni · OK Entra · Back Home</div>
+    </div>
+
+    <!-- Editor nome profilo -->
+    <div id="nameedit" class="hidden">
+      <div id="nebox">
+        <div id="netitle">Nome profilo</div>
+        <div id="nevalue"></div>
+        <div id="negrid"></div>
+      </div>
+    </div>
+
+    <!-- Info & Credits -->
+    <div id="creditsview" class="hidden">
+      <div id="chead">
+        <div id="cbrand">Nus<span>Stream</span></div>
+        <div id="cmeta"><span class="cver" id="cver">0.0.0</span><span class="cdotdot">·</span><span>org.nusstream.app</span><span class="cdotdot">·</span><span>webOS 5 / Chromium 79</span></div>
+      </div>
+
+      <div id="cstatus">
+        <div class="ccard">
+          <div class="clabel">CATALOGO</div>
+          <div class="cvalue" id="chost">—</div>
+          <div class="cstate wait" id="csitestate">verifica…</div>
+        </div>
+        <div class="ccard">
+          <div class="clabel">PROXY PLAYER</div>
+          <div class="cvalue" id="cproxy">—</div>
+          <div class="cstate wait" id="cproxystate">verifica…</div>
+        </div>
+      </div>
+
+      <div id="clists">
+        <div class="cblock">
+          <div class="cblock-title">CREDITS</div>
+          <div class="crow"><span>Autore</span><b>mich-de</b></div>
+          <div class="crow"><span>Repository</span><b>github.com/mich-de/lg-webos-hardening</b></div>
+          <div class="crow"><span>Catalogo</span><b>StreamingCommunity · non affiliato</b></div>
+          <div class="crow"><span>Player HLS</span><b>hls.js · Apache-2.0</b></div>
+          <div class="crow"><span>Icone</span><b>SVG inline</b></div>
+          <div class="crow"><span>Proxy player</span><b>tv/refproxy · Python + curl</b></div>
+        </div>
+        <div class="cblock">
+          <div class="cblock-title">NOTE</div>
+          <div class="ctext">Client personale per uso privato: NusStream non ospita né distribuisce contenuti. Metadati e flussi arrivano dai servizi di terze parti elencati sopra. Il proxy serve solo a inviare l'header Referer richiesto dal player.</div>
+        </div>
+      </div>
+
+      <div id="cfooter">
+        <div id="crefresh" role="button" aria-label="Ricontrolla stato">↻ Ricontrolla</div>
+        <div id="cclose" role="button" aria-label="Chiudi info">✕ Chiudi (Back)</div>
+      </div>
+    </div>
+
     <!-- Barra comandi inferiore -->
     <footer id="hint">
       <div id="hintlead">COMANDI</div>
@@ -182,5 +263,6 @@
   </div>
 </div>
 <script src="hls.min.js"></script>
+<script src="oscar.js"></script>
 <script src="main.js"></script>
 </body></html>

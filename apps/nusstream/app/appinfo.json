@@ -1,6 +1,6 @@
 {
   "id": "org.nusstream.app",
-  "version": "0.4.5",
+  "version": "0.5.0",
   "vendor": "NusStream",
   "type": "web",
   "main": "index.html",
@@ -8,5 +8,6 @@
   "requiredACG": [],
   "icon": "images/icon.png",
   "largeIcon": "images/largeIcon.png",
-  "uiRevision": "2"
+  "uiRevision": "2",
+  "disableBackHistoryAPI": true
 }
