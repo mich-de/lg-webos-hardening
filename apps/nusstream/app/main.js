@@ -1682,6 +1682,59 @@ var curPlayItem = null;
 var curHls = null;
 var curIframe = null;
 
+/* Top-level HLS pinning: start at the highest level, drop to ABR only after a real stall. */
+var upForcedTop = false;
+var upStallTimer = null;
+var upWatchBound = false;
+
+function upForceTop() {
+	if (!curHls || !curHls.levels || !curHls.levels.length) return;
+	var top = curHls.levels.length - 1;
+	if (curHls.currentLevel !== top) curHls.currentLevel = top;
+	upForcedTop = true;
+}
+
+function upClearStall() {
+	if (upStallTimer) {
+		clearTimeout(upStallTimer);
+		upStallTimer = null;
+	}
+}
+
+function upFlashMsg(txt) {
+	var m = $('playmsg');
+	if (!m) return;
+	m.textContent = txt;
+	m.className = '';
+	setTimeout(function () {
+		if (m.textContent === txt) m.className = 'hidden';
+	}, 2000);
+}
+
+function upOnWaiting() {
+	upClearStall();
+	if (!upForcedTop) return;
+	upStallTimer = setTimeout(function () {
+		upStallTimer = null;
+		if (!upForcedTop) return;
+		var v = $('video');
+		if (!v || screen !== ST.PLAY || v.readyState >= 3) return;
+		upForcedTop = false;
+		if (curHls) { try { curHls.currentLevel = -1; } catch (e) {} }
+		upFlashMsg('Segnale instabile: qualità automatica');
+	}, 5000);
+}
+
+function upBindWatch() {
+	if (upWatchBound) return;
+	var v = $('video');
+	if (!v) return;
+	upWatchBound = true;
+	v.addEventListener('waiting', upOnWaiting);
+	v.addEventListener('playing', upClearStall);
+	v.addEventListener('seeking', upClearStall);
+}
+
 /* hls.min.js (412 KB) is loaded on demand instead of parser-blocking in index.html.
    First play() triggers the download; queued callbacks flush on load OR error, so the
    native-HLS / iframe fallback path in playCore stays reachable if the file is missing. */
@@ -1716,6 +1769,8 @@ function play(item) {
 
 function playCore(item) {
 	curPlayItem = item;
+	upForcedTop = false;
+	upClearStall();
 	screen = ST.PLAY;
 	document.body.classList.add('in-player');
 	drawerOpen = false;
@@ -1758,6 +1813,7 @@ function playCore(item) {
 
 	var v = $('video');
 	v.style.display = '';
+	upBindWatch();
 	v.muted = false;
 	v.volume = 1.0;
 	v.ontimeupdate = v.onpause = v.onerror = v.onloadedmetadata = v.onresize = null;
@@ -1769,6 +1825,8 @@ function playCore(item) {
 
 	function useIframe(embUrl) {
 		if (curHls) { try { curHls.destroy(); } catch (e) {} curHls = null; }
+		upForcedTop = false;
+		upClearStall();
 		v.style.display = 'none';
 		$('playmsg').className = 'hidden';
 		if (curIframe) curIframe.remove();
@@ -1843,6 +1901,7 @@ function playCore(item) {
 				v.volume = 1.0;
 				var p = v.play();
 				if (p && p.catch) p.catch(function () {});
+				upForceTop();
 				updateRealStreamBadges();
 				console.log('[hls] levels', hls.levels.map(function (l) { return l.width + 'x' + l.height; }).join(' '));
 				if (hls.audioTracks && hls.audioTracks.length) tracksAudIdx = hls.audioTrack;
@@ -1850,6 +1909,8 @@ function playCore(item) {
 			});
 
 			hls.on(Hls.Events.LEVEL_SWITCHED, function () {
+				// Re-assert the top level only while we are still pinning (never after a stall fallback).
+				if (upForcedTop && hls.levels && hls.levels.length && hls.currentLevel < hls.levels.length - 1) upForceTop();
 				updateRealStreamBadges();
 			});
 			hls.on(Hls.Events.AUDIO_TRACK_SWITCHED, function () {
@@ -1936,6 +1997,8 @@ function playCore(item) {
 function stopPlay() {
 	playSeq++;
 	clearInterval(autoNextTimer);
+	upForcedTop = false;
+	upClearStall();
 	if (curHls) {
 		try { curHls.destroy(); } catch (e) {}
 		curHls = null;
