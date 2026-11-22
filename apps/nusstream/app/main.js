@@ -1689,7 +1689,13 @@ function ensureHls(cb) {
 	s.src = 'hls.min.js';
 	s.async = true;
 	s.onload = hlsFlush;
-	s.onerror = hlsFlush;
+	s.onerror = function () {
+		// Failed: drain the queue (each playCore falls back to native HLS / iframe),
+		// then reset the loader so the next play() attempt injects the script once more.
+		hlsFlush();
+		window.__hlsQueue = [];
+		window.__hlsLoading = false;
+	};
 	document.head.appendChild(s);
 }
 var playSeq = 0;
