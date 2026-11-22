@@ -1588,19 +1588,29 @@ function keyTracksDrawer(k) {
 function updateRealStreamBadges() {
 	var v = $('video');
 	if (!v) return;
-	var w = v.videoWidth || 0, h = v.videoHeight || 0;
 	var curLevel = (curHls && curHls.levels && curHls.currentLevel >= 0) ? curHls.levels[curHls.currentLevel] : null;
-	if ((!w || !h) && curLevel) {
+	var w = 0, h = 0;
+	if (curLevel) {
 		w = curLevel.width || 0;
 		h = curLevel.height || 0;
+	} else {
+		w = v.videoWidth || 0;
+		h = v.videoHeight || 0;
 	}
 
+	var sizeTxt = (w > 0 && h > 0) ? ' · ' + w + 'x' + h : '';
 	var resHtml = '';
-	if (h >= 2160 || w >= 3840) resHtml = '<span class="hbadge real-res real-4k">4K UHD</span>';
-	else if (h >= 1080 || w >= 1920) resHtml = '<span class="hbadge real-res real-fhd">1080p FHD</span>';
-	else if (h >= 720 || w >= 1280) resHtml = '<span class="hbadge real-res real-hd">720p HD</span>';
-	else if (h > 0) resHtml = '<span class="hbadge real-res real-sd">' + h + 'p SD</span>';
-	else resHtml = '<span class="hbadge real-res real-hd">HD</span>';
+	if (h >= 2160 || w >= 3840) resHtml = '<span class="hbadge real-res real-4k">4K UHD' + sizeTxt + '</span>';
+	else if (h >= 1080 || w >= 1920) resHtml = '<span class="hbadge real-res real-fhd">1080p FHD' + sizeTxt + '</span>';
+	else if (h >= 720 || w >= 1280) resHtml = '<span class="hbadge real-res real-hd">720p HD' + sizeTxt + '</span>';
+	else if (h > 0) resHtml = '<span class="hbadge real-res real-sd">' + h + 'p SD' + sizeTxt + '</span>';
+	else resHtml = '<span class="hbadge real-res real-sd">SD' + sizeTxt + '</span>';
+
+	var engLabel = (window.Hls && window.Hls.isSupported() && curHls) ? 'hls.js' : 'native';
+	if (curHls && curHls.levels && curHls.levels.length && curHls.currentLevel >= 0) {
+		engLabel += ' · L' + (curHls.currentLevel + 1) + '/' + curHls.levels.length;
+	}
+	var engHtml = '<span class="mbadge tech">' + esc(engLabel) + '</span>';
 
 	var brHtml = '';
 	if (curLevel && curLevel.bitrate) {
@@ -1635,7 +1645,7 @@ function updateRealStreamBadges() {
 	if (item.season && item.n) baseMeta += '<span class="mbadge">Stagione ' + item.season + ' · Ep ' + item.n + '</span>';
 	else if (item.season) baseMeta += '<span class="mbadge">Stagione ' + item.season + '</span>';
 
-	$('pmeta').innerHTML = baseMeta + resHtml + brHtml + codHtml + audHtml + subHtml;
+	$('pmeta').innerHTML = baseMeta + resHtml + brHtml + codHtml + audHtml + subHtml + engHtml;
 }
 
 function triggerAutoNext() {
